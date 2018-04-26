@@ -1,12 +1,30 @@
 #include "main.h"
 #include "time.h"
+#include "adc.h"
 
 _ledFun ledFun;
+_Battery battery;
+_System system;
 
+/**
+  * @brief  Configure System_Variable_Init
+  * @param  None
+  * @retval None
+  */
+static void System_Variable_Init(void)
+{
+	system.System_State = System_Run;
+	system.Charge_For_Discharge = Discharge_State;
+	battery.Batter_Low_Pressure = Batter_Normal;
+	battery.Current_Display = 6;
+
+	system.Charge_For_Discharge = Discharge_State;
+
+}
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
   * @param  None
-  * @retval None
+  * @retval None 
   */
 static void SClK_Initial(void)
 {      
@@ -23,7 +41,7 @@ static void SClK_Initial(void)
   */
 void GPIO_Init(void)
 {
-  PA_DDR |= 0x02;                    //PA1 输出模式
+  PA_DDR |= 0x06;                    //PA1 PA2输出模式
 	PA_CR1 |= 0x02;                    //推挽输出
 	PA_CR2 |= 0x02;                    //输出速度10Mhz
 
@@ -35,7 +53,7 @@ void GPIO_Init(void)
 	PA_CR1 |= 0x10;                    //推挽输出
 	PA_CR2 |= 0x10;                    //输出速度10Mhz
 
-	PA_CR1 |= 0x2C;                    //PA2 PA3 PA5上拉输入
+	PA_CR1 |= 0x27;                    //PA3 PA5上拉输入
 
 	PB_CR1 |= 0x10;                    //PB4 上拉输入
 
@@ -43,6 +61,12 @@ void GPIO_Init(void)
 	
 	PD_CR1 |= 0x02;                    //PD1 上拉输入
 
+	Red = 1;
+	Grenn = 1;
+
+	CE = 0;
+	A_DIR = 1;
+	B_EN = 0;
 	
 }
 /**
@@ -63,10 +87,18 @@ void ClockConfig_ON(void)
   */
 void main(void)
 {
+	System_Variable_Init();
 	SClK_Initial();
-	GPIO_Init();
 	ClockConfig_ON();
+	GPIO_Init();
+	ADC_Init();
 	Time2_Init();
-	while(1);
+	asm("rim");                                 //开全局中断 
+	while(1){
+	if(system.System_State == System_Run){
+			Adc_Task();
+			Battery_Volume();
+		}
+	}
 }
 

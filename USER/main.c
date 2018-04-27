@@ -5,6 +5,7 @@
 _ledFun ledFun;
 _Battery battery;
 _System system;
+_Qc_Detection qc_detection;
 
 /**
   * @brief  Configure System_Variable_Init
@@ -19,6 +20,7 @@ static void System_Variable_Init(void)
 	battery.Current_Display = 6;
 
 	system.Charge_For_Discharge = Discharge_State;
+	qc_detection.Mode = low_speed_mode;
 
 }
 /**
@@ -85,6 +87,15 @@ void ClockConfig_ON(void)
   * @param  None
   * @retval None
   */
+static void Charge_For_Discharge_Detection(void)
+{
+	
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 void main(void)
 {
 	System_Variable_Init();
@@ -96,6 +107,7 @@ void main(void)
 	asm("rim");                                 //开全局中断 
 	while(1){
 	if(system.System_State == System_Run){
+			Charge_For_Discharge_Detection();
 			Adc_Task();
 			Battery_Volume();
 		}

@@ -23,62 +23,95 @@ void Time2_Init(void)
   * @param  None
   * @retval None
   */
+static void PWM_indicator(void)
+{
+	if(++ledFun.ledPeriod >= LED_PERIOD_MAX){	//整个周期结束
+		ledFun.ledPeriod = 0;
+		if(ledFun.ledModeFlag == 1){	//渐灭
+			if(ledFun.ledPlus){	//占空比越来越小
+				--ledFun.ledPlus;
+				if(!ledFun.ledPlus){
+					ledFun.ledModeFlag = 0;
+				}
+			}
+		}else{//渐亮
+			if(++ledFun.ledPlus == LED_PERIOD_MAX){	//占空比越来越大
+				ledFun.ledModeFlag = 1;
+			}
+		}
+	}
+	if(ledFun.ledPeriod < ledFun.ledPlus){	//1输出占空比
+		switch(battery.Current_Display){
+			case Quantity_Electricity_100: Grenn = 0; Red = 1; break;
+			case Quantity_Electricity_70:  Grenn = 0; Red = 0; break;
+			case Quantity_Electricity_40:  Grenn = 1; Red = 0; break;
+			default: break;
+		}
+	}else{
+		Grenn = 1;
+		Red = 1;
+	}
+}
+static void LED_indicator(void)
+{
+	ledFun.ledPeriod = false;
+	ledFun.ledPlus = false;
+	ledFun.ledModeFlag = false;
+	switch(battery.Current_Display){
+		case Quantity_Electricity_100: Grenn = 0; Red = 1; break;
+		case Quantity_Electricity_70:  Grenn = 0; Red = 0; break;
+		case Quantity_Electricity_40:  Grenn = 1; Red = 0; break;
+		default: break;
+	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+static void Low_electrical_warning(void)
+{
+	ledFun.ledPeriod = false;
+	ledFun.ledPlus = false;
+	ledFun.ledModeFlag = false;
+	Grenn = 1;
+
+	if(!ledFun.ledFlag){
+		if(ledFun.ledCnt < 4){
+			if(++ledFun.ledBlinktime >= 2000){
+				ledFun.ledBlinktime = false;
+				ledFun.ledCnt++;
+				Red = !Red;
+				}
+		}
+		else{
+			ledFun.ledCnt = false;
+			ledFun.ledFlag = true;
+		}
+	}else{
+		if(++ledFun.ledExtinguish >= 8000){
+			ledFun.ledExtinguish = false;
+			ledFun.ledFlag = false;
+		}else{
+			Red = 1;
+		}
+	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 static void timeIsr(void){
 	if(system.NotifyLight_EN == true){
 		if(battery.Current_Display > Quantity_Electricity_10){
-			if(++ledFun.ledPeriod >= LED_PERIOD_MAX){	//整个周期结束
-				ledFun.ledPeriod = 0;
-				if(ledFun.ledModeFlag == 1){	//渐灭
-					if(ledFun.ledPlus){	//占空比越来越小
-						--ledFun.ledPlus;
-						if(!ledFun.ledPlus){
-							ledFun.ledModeFlag = 0;
-						}
-					}
-				}else{//渐亮
-					if(++ledFun.ledPlus == LED_PERIOD_MAX){	//占空比越来越大
-						ledFun.ledModeFlag = 1;
-					}
-				}
+			if(qc_detection.Mode == Speed_mode){
+				PWM_indicator();
+			}else{//qc_detection.Mode == low_speed_mode
+				LED_indicator();
 			}
-			 if(ledFun.ledPeriod < ledFun.ledPlus){	//1输出占空比
-					switch(battery.Current_Display){
-						case Quantity_Electricity_100: Grenn = 0; Red = 1; break;
-						case Quantity_Electricity_70:  Grenn = 0; Red = 0; break;
-						case Quantity_Electricity_40:  Grenn = 1; Red = 0; break;
-						default: break;
-					}
-			 }else{
-			 		Grenn = 1;
-					Red = 1;
-			}
-		}
-		else{		//battery.Current_Display <= Quantity_Electricity_10
-			ledFun.ledPeriod = false;
-			ledFun.ledPlus = false;
-			ledFun.ledModeFlag = false;
-			Grenn = 1;
-
-			if(!ledFun.ledFlag){
-				if(ledFun.ledCnt < 4){
-					if(++ledFun.ledBlinktime >= 2000){
-						ledFun.ledBlinktime = false;
-						ledFun.ledCnt++;
-						Red = !Red;
-					}
-				}
-				else{
-					ledFun.ledCnt = false;
-					ledFun.ledFlag = true;
-				}
-			}else{
-				if(++ledFun.ledExtinguish >= 8000){
-					ledFun.ledExtinguish = false;
-					ledFun.ledFlag = false;
-				}else{
-					Red = 1;
-				}
-			}
+		}else{		//battery.Current_Display <= Quantity_Electricity_10
+			Low_electrical_warning();
 		}
 	}
 }

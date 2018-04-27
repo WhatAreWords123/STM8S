@@ -24,10 +24,10 @@
 	STAT2												PC5											input/ti
 	TEST1												PA3											input/ti
 	
-	QC													PD2											input/adc
-	A1_AD												PD3											input/adc
-	C_ADC												PD5											input/adc
-	VB													PD6											input/adc
+	QC													PD2											input/adc/AIN3
+	A1_AD												PD3											input/adc/AIN4
+	C_ADC												PD5											input/adc/AIN5
+	VB													PD6											input/adc/AIN6
 */
 
 /*!< Signed integer types  */
@@ -76,6 +76,7 @@ typedef unsigned long     uint32_t;
 #define System_Run                                          true
 
 #define ADC_VB                    													0x06                  //ADC2通道
+#define ADC_QC																							0x03									//ADC3通道
 
 #if 0
 #define Battery_Level_0                                     (uint16_t)0x15F          //1.714V
@@ -97,6 +98,11 @@ typedef unsigned long     uint32_t;
 #define Quantity_Electricity_5															1
 
 
+#define Speed_Voltage																				(uint16_t)0x147
+#define low_speed_Voltage																		(uint16_t)0xF5
+
+#define Speed_mode																					true
+#define low_speed_mode																			false
 
 
 typedef struct{
@@ -128,8 +134,13 @@ typedef struct{
 	uint16_t Lndicator_light_cnt;
 }_System;
 
+typedef struct{
+	uint8_t Mode;
+	uint16_t ADC_QC_Voltage;
+}_Qc_Detection;
+
 extern _ledFun ledFun;
 extern _Battery battery;
 extern _System system;
-
+extern _Qc_Detection qc_detection;
 #endif

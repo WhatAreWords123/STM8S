@@ -82,6 +82,20 @@ uint16_t Read_ADC(uint8_t ch)
   * @param  None
   * @retval None
   */
+static void Fast_slow_charge_discharge_judge(void)
+{
+	if(qc_detection.ADC_QC_Voltage > Speed_Voltage){
+		qc_detection.Mode = Speed_mode;
+	}
+	else if(qc_detection.ADC_QC_Voltage < low_speed_Voltage){
+		qc_detection.Mode = low_speed_mode;
+	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 void Adc_Task(void)
 {
 	static uint8_t Adc_Query = false;
@@ -90,7 +104,8 @@ void Adc_Task(void)
 	{
     switch(Adc_Query)
 		{
-      case 0: battery.Battery_voltage = Read_ADC(ADC_VB); Adc_Query=0; break;
+      case 0: battery.Battery_voltage = Read_ADC(ADC_VB); Adc_Query++; break;
+			case 1: qc_detection.ADC_QC_Voltage = Read_ADC(ADC_QC); Fast_slow_charge_discharge_judge(); Adc_Query=0; break;
       default:break;
     }
 		system.Flay_Adc_gather = false;

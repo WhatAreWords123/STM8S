@@ -6,6 +6,7 @@ _ledFun ledFun;
 _Battery battery;
 _System system;
 _Qc_Detection qc_detection;
+_A1_Detection a1_detection;
 
 /**
   * @brief  Configure System_Variable_Init
@@ -21,7 +22,7 @@ static void System_Variable_Init(void)
 
 	system.Charge_For_Discharge = Discharge_State;
 	qc_detection.Mode = low_speed_mode;
-
+	
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -89,7 +90,17 @@ void ClockConfig_ON(void)
   */
 static void Charge_For_Discharge_Detection(void)
 {
-	
+	if(Ready == false){
+		system.Charge_For_Discharge = Charge_State;
+		A_DIR = 0;
+		B_EN = 1;
+		
+	}else{
+		system.Charge_For_Discharge = Discharge_State;
+		CE = 0;
+		A_DIR = 1;
+		B_EN = 0;
+	}
 }
 /**
   * @brief  None

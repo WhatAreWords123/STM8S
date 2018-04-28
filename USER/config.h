@@ -77,6 +77,7 @@ typedef unsigned long     uint32_t;
 
 #define ADC_VB                    													0x06                  //ADC2通道
 #define ADC_QC																							0x03									//ADC3通道
+#define ADC_A1_AD																						0x04									//ADC4通道
 
 #if 0
 #define Battery_Level_0                                     (uint16_t)0x15F          //1.714V
@@ -104,18 +105,23 @@ typedef unsigned long     uint32_t;
 #define Speed_mode																					true
 #define low_speed_mode																			false
 
+#define Battery_Full																				true
+#define Battery_Charge																			false
 
 typedef struct{
 	uint8_t ledPeriod;
 	uint8_t ledPlus;
 	uint8_t ledModeFlag;
 	uint8_t ledCnt;
+	uint8_t ledFlag;
 	uint16_t ledBlinktime;
 	uint16_t ledExtinguish;
-	uint8_t ledFlag;
+	uint16_t Charge_Slow_ledBlinktime;
+	uint16_t Charge_quickness_ledBlinktime;
 }_ledFun;
 
 typedef struct{
+	uint8_t Battery_State;
 	uint8_t Battery_energy_buf;
 	uint8_t Batter_Low_Pressure;
 	uint8_t Current_Display;
@@ -128,6 +134,7 @@ typedef struct{
 	uint8_t System_State;
 	uint8_t NotifyLight_EN;
 	uint8_t Charge_For_Discharge;
+	uint8_t Current_Charge_State;
 	uint8_t Flay_Adc_gather;
 	uint8_t Lndicator_light_cnt_multiple;
 	uint16_t Adc_gather_cnt;
@@ -139,8 +146,13 @@ typedef struct{
 	uint16_t ADC_QC_Voltage;
 }_Qc_Detection;
 
+typedef struct{
+	uint16_t ADC_A1_AD_Voltage;
+}_A1_Detection;
+
 extern _ledFun ledFun;
 extern _Battery battery;
 extern _System system;
 extern _Qc_Detection qc_detection;
+extern _A1_Detection a1_detection;
 #endif

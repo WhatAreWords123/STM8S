@@ -102,16 +102,71 @@ static void Low_electrical_warning(void)
   * @param  None
   * @retval None
   */
+static void Charge_indicator_quickness(void)
+{
+	ledFun.Charge_Slow_ledBlinktime = false;
+	if(++ledFun.Charge_quickness_ledBlinktime >= 5000){
+		ledFun.Charge_quickness_ledBlinktime = false;
+		switch(battery.Current_Display){
+			case Quantity_Electricity_100: Grenn = !Grenn; Red = 1; break;
+			case Quantity_Electricity_70:  Grenn = !Grenn; Red = !Red; break;
+			case Quantity_Electricity_10:
+			case Quantity_Electricity_40:
+				Grenn = 1;
+				Red = !Red;
+				break;
+			default: break;
+		}		
+	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+static void Charge_indicator_Slow(void)
+{
+	ledFun.Charge_quickness_ledBlinktime = false;
+	if(++ledFun.Charge_Slow_ledBlinktime >= 10000){
+		ledFun.Charge_Slow_ledBlinktime = false;
+		switch(battery.Current_Display){
+			case Quantity_Electricity_100: Grenn = !Grenn; Red = 1; break;
+			case Quantity_Electricity_70:  Grenn = !Grenn; Red = !Red; break;
+			case Quantity_Electricity_10:
+			case Quantity_Electricity_40:
+				Grenn = 1;
+				Red = !Red;
+				break;
+			default: break;
+		}		
+	}	
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 static void timeIsr(void){
 	if(system.NotifyLight_EN == true){
-		if(battery.Current_Display > Quantity_Electricity_10){
-			if(qc_detection.Mode == Speed_mode){
-				PWM_indicator();
-			}else{//qc_detection.Mode == low_speed_mode
-				LED_indicator();
+		if(system.Charge_For_Discharge == Discharge_State){
+			if(battery.Current_Display > Quantity_Electricity_10){
+				if(qc_detection.Mode == Speed_mode){
+					PWM_indicator();
+				}else{//qc_detection.Mode == low_speed_mode
+					LED_indicator();
+				}
+			}else{//battery.Current_Display <= Quantity_Electricity_10
+				Low_electrical_warning();
 			}
-		}else{		//battery.Current_Display <= Quantity_Electricity_10
-			Low_electrical_warning();
+		}else{//system.Charge_For_Discharge == Charge_State
+			ledFun.ledPeriod = false;
+			ledFun.ledPlus = false;
+			ledFun.ledModeFlag = false;
+			if(qc_detection.Mode == Speed_mode){
+				Charge_indicator_quickness();
+			}else{//qc_detection.Mode == low_speed_mode
+				Charge_indicator_Slow();
+			}
 		}
 	}
 }

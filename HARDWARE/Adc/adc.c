@@ -105,8 +105,9 @@ void Adc_Task(void)
     switch(Adc_Query)
 		{
       case 0: battery.Battery_voltage = Read_ADC(ADC_VB); Adc_Query++; break;
-			case 1: qc_detection.ADC_QC_Voltage = Read_ADC(ADC_QC); Fast_slow_charge_discharge_judge(); Adc_Query=0; break;
-      default:break;
+			case 1: qc_detection.ADC_QC_Voltage = Read_ADC(ADC_QC); Fast_slow_charge_discharge_judge(); Adc_Query++; break;
+			case 2: a1_detection.ADC_A1_AD_Voltage = Read_ADC(ADC_A1_AD); Adc_Query=0; break;
+			default:break;
     }
 		system.Flay_Adc_gather = false;
   }
@@ -120,9 +121,13 @@ void Battery_Volume(void)
 {
 	if(system.Charge_For_Discharge == Discharge_State)
 		battery.Battery_Compensate = false;
-	else//system.Charge_For_Discharge == Charge_State
-		battery.Battery_Compensate = false;
-	
+	else{//system.Charge_For_Discharge == Charge_State
+		if(qc_detection.Mode == Speed_mode){
+			battery.Battery_Compensate = false;
+		}else{//qc_detection.Mode == low_speed_mode
+			battery.Battery_Compensate = false;
+		}
+	}
 	if(battery.Battery_Level_Update == true){
 		if(battery.Battery_voltage >= (Battery_Level_3 + battery.Battery_Compensate))
 			battery.Battery_energy_buf = Quantity_Electricity_100;
@@ -152,8 +157,10 @@ void Battery_Volume(void)
 		
 		if(system.Charge_For_Discharge == Charge_State)
 		{
-			if(battery.Battery_energy_buf >= battery.Current_Display)
+			if(battery.Battery_energy_buf >= battery.Current_Display){
 				battery.Current_Display = battery.Battery_energy_buf;
+				system.NotifyLight_EN = true;
+			}
 		}
 		else//system.Charge_For_Discharge == Discharge_State
 		{

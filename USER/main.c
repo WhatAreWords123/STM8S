@@ -88,18 +88,66 @@ void ClockConfig_ON(void)
   * @param  None
   * @retval None
   */
-static void Charge_For_Discharge_Detection(void)
+static uint8_t Charge_For_Discharge_Detection(void)
 {
+#if 0
 	if(Ready == false){
 		system.Charge_For_Discharge = Charge_State;
-		A_DIR = 0;
-		B_EN = 1;
-		
+		A_DIR = false;
+		if(a1_detection.Current_charge_state == Charge_normal){
+			B_EN = true;
+		}
+		a1_detection.Delay_enable = true;
 	}else{
 		system.Charge_For_Discharge = Discharge_State;
-		CE = 0;
-		A_DIR = 1;
-		B_EN = 0;
+		CE = false;
+		A_DIR = true;
+		B_EN = false;
+	}
+#endif
+
+	if(a1_detection.Current_charge_state == Charge_normal){
+		if(Ready == false){
+			system.Charge_For_Discharge = Charge_State;
+		}else{
+			system.Charge_For_Discharge = Discharge_State;
+		}
+	}else{//a1_detection.Current_charge_state == Charge_abnormal
+		//Forced switch to discharge state.
+		system.Charge_For_Discharge = Discharge_State;
+	}
+	
+	if(system.Last_state == system.Charge_For_Discharge){
+		return 0;
+	}
+	system.Last_state = system.Charge_For_Discharge;
+
+	if(system.Charge_For_Discharge == Charge_State){
+		A_DIR = false;
+		B_EN = true;
+		a1_detection.Delay_enable = true;
+	}else{//system.Charge_For_Discharge == Charge_State
+		CE = false;
+		A_DIR = true;
+		B_EN = false;
+	}
+	return 0;
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+static void Charge_Query(void)
+{
+	if(a1_detection.Delay_time_out == true){
+		if(a1_detection.ADC_A1_AD_Voltage > (uint16_t)0x41){
+			B_EN = true;
+			a1_detection.Current_charge_state = Charge_normal;
+		}else{
+			B_EN = false;
+			a1_detection.Current_charge_state = Charge_abnormal;
+		}
 	}
 }
 /**
@@ -120,6 +168,7 @@ void main(void)
 	if(system.System_State == System_Run){
 			Charge_For_Discharge_Detection();
 			Adc_Task();
+			Charge_Query();
 			Battery_Volume();
 		}
 	}

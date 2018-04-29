@@ -108,6 +108,9 @@ typedef unsigned long     uint32_t;
 #define Battery_Full																				true
 #define Battery_Charge																			false
 
+#define Charge_normal																				false
+#define Charge_abnormal																			true
+
 typedef struct{
 	uint8_t ledPeriod;
 	uint8_t ledPlus;
@@ -132,9 +135,9 @@ typedef struct{
 
 typedef struct{
 	uint8_t System_State;
+	uint8_t Last_state;
 	uint8_t NotifyLight_EN;
 	uint8_t Charge_For_Discharge;
-	uint8_t Current_Charge_State;
 	uint8_t Flay_Adc_gather;
 	uint8_t Lndicator_light_cnt_multiple;
 	uint16_t Adc_gather_cnt;
@@ -147,6 +150,13 @@ typedef struct{
 }_Qc_Detection;
 
 typedef struct{
+	uint8_t Current_charge_state;
+	uint8_t Delay_enable;
+	uint8_t Delay_time_out;
+	uint8_t Delay_enable_cnt_multiple;
+	uint8_t Charge_abnormal_Delay_enable_cnt_multiple;
+	uint16_t Delay_enable_cnt;
+	uint16_t Charge_abnormal_Delay_enable_cnt;
 	uint16_t ADC_A1_AD_Voltage;
 }_A1_Detection;
 

@@ -198,6 +198,28 @@ __interrupt void Time2_OVR_IRQHandler(void)
 			}
 		}
 	}
+
+	if(a1_detection.Delay_enable == true){
+		if(++a1_detection.Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
+			a1_detection.Delay_enable_cnt = false;
+			if(++a1_detection.Delay_enable_cnt_multiple >= MULTIPLE){
+				a1_detection.Delay_enable_cnt_multiple = false;
+				a1_detection.Delay_enable = false;
+				a1_detection.Delay_time_out = true;
+			}
+		}
+	}
+
+	if(a1_detection.Current_charge_state == Charge_abnormal){
+		if(++a1_detection.Charge_abnormal_Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
+			a1_detection.Charge_abnormal_Delay_enable_cnt = false;
+			if(++a1_detection.Charge_abnormal_Delay_enable_cnt_multiple >= MULTIPLE){
+				a1_detection.Charge_abnormal_Delay_enable_cnt_multiple = false;
+				a1_detection.Current_charge_state = Charge_normal;
+			}
+		}		
+	}
+	
 	timeIsr();
 	
 	TIM2_SR1 = 0x00;         																		//清除更新时间标志位

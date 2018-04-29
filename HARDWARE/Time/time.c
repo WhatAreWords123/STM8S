@@ -217,7 +217,7 @@ __interrupt void Time2_OVR_IRQHandler(void)
 				a1_detection.Charge_abnormal_Delay_enable_cnt_multiple = false;
 				a1_detection.Current_charge_state = Charge_normal;
 			}
-		}		
+		}
 	}
 	
 	timeIsr();

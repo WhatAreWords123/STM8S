@@ -135,7 +135,7 @@ typedef struct{
 
 typedef struct{
 	uint8_t System_State;
-	uint8_t Last_state;
+//	uint8_t Last_state;
 	uint8_t NotifyLight_EN;
 	uint8_t Charge_For_Discharge;
 	uint8_t Flay_Adc_gather;

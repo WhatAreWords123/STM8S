@@ -88,7 +88,7 @@ void ClockConfig_ON(void)
   * @param  None
   * @retval None
   */
-static uint8_t Charge_For_Discharge_Detection(void)
+static void Charge_For_Discharge_Detection(void)
 {
 	if(a1_detection.Current_charge_state == Charge_normal){
 		if(Ready == false){
@@ -100,13 +100,8 @@ static uint8_t Charge_For_Discharge_Detection(void)
 		//Forced switch to discharge state.
 		system.Charge_For_Discharge = Discharge_State;
 	}
-	
-	if(system.Last_state == system.Charge_For_Discharge){
-		return 0;
-	}
-	system.Last_state = system.Charge_For_Discharge;
-
 	if(system.Charge_For_Discharge == Charge_State){
+		CE = false;
 		A_DIR = false;
 		B_EN = true;
 		a1_detection.Delay_enable = true;
@@ -114,8 +109,9 @@ static uint8_t Charge_For_Discharge_Detection(void)
 		CE = false;
 		A_DIR = true;
 		B_EN = false;
+		a1_detection.Delay_enable = false;
+		a1_detection.Delay_time_out = false;
 	}
-	return 0;
 }
 /**
   * @brief  None

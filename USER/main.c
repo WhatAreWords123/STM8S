@@ -90,22 +90,6 @@ void ClockConfig_ON(void)
   */
 static uint8_t Charge_For_Discharge_Detection(void)
 {
-#if 0
-	if(Ready == false){
-		system.Charge_For_Discharge = Charge_State;
-		A_DIR = false;
-		if(a1_detection.Current_charge_state == Charge_normal){
-			B_EN = true;
-		}
-		a1_detection.Delay_enable = true;
-	}else{
-		system.Charge_For_Discharge = Discharge_State;
-		CE = false;
-		A_DIR = true;
-		B_EN = false;
-	}
-#endif
-
 	if(a1_detection.Current_charge_state == Charge_normal){
 		if(Ready == false){
 			system.Charge_For_Discharge = Charge_State;
@@ -141,6 +125,7 @@ static uint8_t Charge_For_Discharge_Detection(void)
 static void Charge_Query(void)
 {
 	if(a1_detection.Delay_time_out == true){
+		a1_detection.Delay_time_out = false;
 		if(a1_detection.ADC_A1_AD_Voltage > (uint16_t)0x41){
 			B_EN = true;
 			a1_detection.Current_charge_state = Charge_normal;
@@ -149,6 +134,15 @@ static void Charge_Query(void)
 			a1_detection.Current_charge_state = Charge_abnormal;
 		}
 	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+static void Sleep_task(void)
+{
+
 }
 /**
   * @brief  None
@@ -170,6 +164,8 @@ void main(void)
 			Adc_Task();
 			Charge_Query();
 			Battery_Volume();
+		}else{//system.System_State == System_Sleep
+			Sleep_task();
 		}
 	}
 }

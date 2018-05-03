@@ -124,7 +124,12 @@ typedef struct{
 }_ledFun;
 
 typedef struct{
+	uint8_t Delay_Detection_Battery_full_status;
+	uint8_t Battery_full_time_out;
+	uint8_t Battery_full_locking;
 	uint8_t Battery_State;
+	uint8_t Battery_Full_cnt_multiple;
+	uint16_t Battery_Full_cnt;
 	uint8_t Battery_energy_buf;
 	uint8_t Batter_Low_Pressure;
 	uint8_t Current_Display;
@@ -150,6 +155,7 @@ typedef struct{
 }_Qc_Detection;
 
 typedef struct{
+	uint8_t Delay_Detection_status;
 	uint8_t Current_charge_state;
 	uint8_t Delay_enable;
 	uint8_t Delay_time_out;

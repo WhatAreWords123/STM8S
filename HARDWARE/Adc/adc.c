@@ -123,9 +123,9 @@ void Battery_Volume(void)
 		battery.Battery_Compensate = false;
 	else{//system.Charge_For_Discharge == Charge_State
 		if(qc_detection.Mode == Speed_mode){
-			battery.Battery_Compensate = false;
+			battery.Battery_Compensate = (uint16_t)0x14;//Charge Compensate	0.1V
 		}else{//qc_detection.Mode == low_speed_mode
-			battery.Battery_Compensate = false;
+			battery.Battery_Compensate = (uint16_t)0x0A;//Charge Compensate	0.05V
 		}
 	}
 	if(battery.Battery_Level_Update == true){

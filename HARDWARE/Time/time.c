@@ -162,10 +162,15 @@ static void timeIsr(void){
 			ledFun.ledPeriod = false;
 			ledFun.ledPlus = false;
 			ledFun.ledModeFlag = false;
-			if(qc_detection.Mode == Speed_mode){
-				Charge_indicator_quickness();
-			}else{//qc_detection.Mode == low_speed_mode
-				Charge_indicator_Slow();
+			if(battery.Battery_State == Battery_Charge){
+				if(qc_detection.Mode == Speed_mode){
+					Charge_indicator_quickness();
+				}else{//qc_detection.Mode == low_speed_mode
+					Charge_indicator_Slow();
+				}
+			}else{//battery.Battery_State == Battery_Full
+				Grenn = 0;
+				Red = 1;
 			}
 		}
 	}
@@ -181,46 +186,58 @@ __interrupt void Time2_OVR_IRQHandler(void)
   
   TIM2_CNTRH = TIME_CNTRH;       															//计数器值   
   TIM2_CNTRL = TIME_CNTRL;       															//计数器值
-  
-  if(!system.Flay_Adc_gather){
-	  if(++system.Adc_gather_cnt >= ADC_GATHER_TIME){
-			system.Adc_gather_cnt = false;
-			system.Flay_Adc_gather = true;
+  if(system.System_State == System_Run){
+	  if(!system.Flay_Adc_gather){
+		  if(++system.Adc_gather_cnt >= ADC_GATHER_TIME){
+				system.Adc_gather_cnt = false;
+				system.Flay_Adc_gather = true;
+		  }
 	  }
+
+		if(!battery.Battery_Level_Update){
+			if(++system.Lndicator_light_cnt >= LNDICATOR_LIGHT_CNT){
+				system.Lndicator_light_cnt = false;
+				if(++system.Lndicator_light_cnt_multiple >= MULTIPLE){
+					system.Lndicator_light_cnt_multiple = false;
+					battery.Battery_Level_Update = true;
+				}
+			}
+		}
+
+		if(a1_detection.Delay_enable == true){
+			if(++a1_detection.Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
+				a1_detection.Delay_enable_cnt = false;
+				if(++a1_detection.Delay_enable_cnt_multiple >= MULTIPLE){
+					a1_detection.Delay_enable_cnt_multiple = false;
+					a1_detection.Delay_enable = false;
+					a1_detection.Delay_time_out = true;
+				}
+			}
+		}
+
+		if(a1_detection.Current_charge_state == Charge_abnormal){
+			if(++a1_detection.Charge_abnormal_Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
+				a1_detection.Charge_abnormal_Delay_enable_cnt = false;
+				if(++a1_detection.Charge_abnormal_Delay_enable_cnt_multiple >= MULTIPLE){
+					a1_detection.Charge_abnormal_Delay_enable_cnt_multiple = false;
+					a1_detection.Current_charge_state = Charge_normal;
+				}
+			}
+		}
+#if 0//test
+		if(battery.Battery_full_time_out == true){
+			if(++battery.Battery_Full_cnt >= LNDICATOR_LIGHT_CNT){
+				battery.Battery_Full_cnt = false;
+				if(++battery.Battery_Full_cnt_multiple >= 30){
+					battery.Battery_Full_cnt_multiple = false;
+					battery.Battery_full_locking = true;
+					battery.Battery_full_time_out = false;
+				}
+			}			
+		}
+#endif
+		timeIsr();
+  }else{//system.System_State == System_Sleep
   }
-
-	if(!battery.Battery_Level_Update){
-		if(++system.Lndicator_light_cnt >= LNDICATOR_LIGHT_CNT){
-			system.Lndicator_light_cnt = false;
-			if(++system.Lndicator_light_cnt_multiple >= MULTIPLE){
-				system.Lndicator_light_cnt_multiple = false;
-				battery.Battery_Level_Update = true;
-			}
-		}
-	}
-
-	if(a1_detection.Delay_enable == true){
-		if(++a1_detection.Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
-			a1_detection.Delay_enable_cnt = false;
-			if(++a1_detection.Delay_enable_cnt_multiple >= MULTIPLE){
-				a1_detection.Delay_enable_cnt_multiple = false;
-				a1_detection.Delay_enable = false;
-				a1_detection.Delay_time_out = true;
-			}
-		}
-	}
-
-	if(a1_detection.Current_charge_state == Charge_abnormal){
-		if(++a1_detection.Charge_abnormal_Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
-			a1_detection.Charge_abnormal_Delay_enable_cnt = false;
-			if(++a1_detection.Charge_abnormal_Delay_enable_cnt_multiple >= MULTIPLE){
-				a1_detection.Charge_abnormal_Delay_enable_cnt_multiple = false;
-				a1_detection.Current_charge_state = Charge_normal;
-			}
-		}
-	}
-	
-	timeIsr();
-	
 	TIM2_SR1 = 0x00;         																		//清除更新时间标志位
 }

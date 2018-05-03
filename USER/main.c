@@ -22,7 +22,13 @@ static void System_Variable_Init(void)
 
 	system.Charge_For_Discharge = Discharge_State;
 	qc_detection.Mode = low_speed_mode;
-	
+	battery.Battery_State = Battery_Charge;
+	a1_detection.Delay_Detection_status = false;
+	battery.Battery_full_time_out = false;
+	battery.Battery_full_locking = false;
+	battery.Delay_Detection_Battery_full_status = false;
+
+	a1_detection.Current_charge_state = Charge_normal;
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -100,17 +106,24 @@ static void Charge_For_Discharge_Detection(void)
 		//Forced switch to discharge state.
 		system.Charge_For_Discharge = Discharge_State;
 	}
+	
 	if(system.Charge_For_Discharge == Charge_State){
 		CE = false;
 		A_DIR = false;
-		B_EN = true;
-		a1_detection.Delay_enable = true;
-	}else{//system.Charge_For_Discharge == Charge_State
+//		if(a1_detection.Delay_Detection_status == false){
+			B_EN = true;
+			a1_detection.Delay_enable = true;
+			a1_detection.Delay_Detection_status = true;
+//		}
+	}else{//system.Charge_For_Discharge == Discharge_State
+		B_EN = false;
 		CE = false;
 		A_DIR = true;
-		B_EN = false;
 		a1_detection.Delay_enable = false;
 		a1_detection.Delay_time_out = false;
+		a1_detection.Delay_Detection_status = false;
+		battery.Battery_full_locking = false;
+		battery.Delay_Detection_Battery_full_status = false;
 	}
 }
 /**
@@ -122,14 +135,37 @@ static void Charge_Query(void)
 {
 	if(a1_detection.Delay_time_out == true){
 		a1_detection.Delay_time_out = false;
-		if(a1_detection.ADC_A1_AD_Voltage > (uint16_t)0x41){
+		if(a1_detection.ADC_A1_AD_Voltage > (uint16_t)0x0A){
 			B_EN = true;
 			a1_detection.Current_charge_state = Charge_normal;
-		}else{
+		}
+		if(a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x04){
 			B_EN = false;
 			a1_detection.Current_charge_state = Charge_abnormal;
 		}
 	}
+#if 0//test
+	if((system.Charge_For_Discharge == Charge_State) && (a1_detection.Current_charge_state == Charge_normal)){
+		if((battery.Battery_voltage > (uint16_t)0x1DB) && (battery.Current_Display == Quantity_Electricity_100)
+			&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B)){
+			if(battery.Delay_Detection_Battery_full_status == false){
+				battery.Battery_full_time_out = true;
+			}
+			else if(battery.Battery_full_locking == true){
+				battery.Battery_State = Battery_Full;
+				battery.Battery_full_locking = true;
+				battery.Delay_Detection_Battery_full_status = true;
+			}
+		}else{
+			if(battery.Battery_full_locking == false){
+				battery.Battery_State = Battery_Charge;
+				battery.Battery_Full_cnt = false;
+				battery.Battery_Full_cnt_multiple = false;
+				battery.Delay_Detection_Battery_full_status = false;
+			}
+		}
+	}
+#endif
 }
 /**
   * @brief  None

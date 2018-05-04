@@ -110,11 +110,12 @@ static void Charge_For_Discharge_Detection(void)
 	if(system.Charge_For_Discharge == Charge_State){
 		CE = false;
 		A_DIR = false;
-//		if(a1_detection.Delay_Detection_status == false){
+		if(a1_detection.Delay_Detection_status == false){
 			B_EN = true;
 			a1_detection.Delay_enable = true;
+			a1_detection.Delay_time_out = false;
 			a1_detection.Delay_Detection_status = true;
-//		}
+		}
 	}else{//system.Charge_For_Discharge == Discharge_State
 		B_EN = false;
 		CE = false;
@@ -133,6 +134,7 @@ static void Charge_For_Discharge_Detection(void)
   */
 static void Charge_Query(void)
 {
+#if 0
 	if(a1_detection.Delay_time_out == true){
 		a1_detection.Delay_time_out = false;
 		if(a1_detection.ADC_A1_AD_Voltage > (uint16_t)0x0A){
@@ -144,6 +146,18 @@ static void Charge_Query(void)
 			a1_detection.Current_charge_state = Charge_abnormal;
 		}
 	}
+#endif
+	if(a1_detection.Delay_time_out == true){
+		a1_detection.Delay_time_out = false;
+		if(a1_detection.ADC_A1_AD_Voltage > (uint16_t)0x0A){
+			B_EN = true;
+			a1_detection.Current_charge_state = Charge_normal;
+		}else{
+			B_EN = false;
+			a1_detection.Current_charge_state = Charge_abnormal;
+		}
+	}
+
 #if 0//test
 	if((system.Charge_For_Discharge == Charge_State) && (a1_detection.Current_charge_state == Charge_normal)){
 		if((battery.Battery_voltage > (uint16_t)0x1DB) && (battery.Current_Display == Quantity_Electricity_100)

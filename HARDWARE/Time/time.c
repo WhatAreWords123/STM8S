@@ -207,7 +207,7 @@ __interrupt void Time2_OVR_IRQHandler(void)
 		if(a1_detection.Delay_enable == true){
 			if(++a1_detection.Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
 				a1_detection.Delay_enable_cnt = false;
-				if(++a1_detection.Delay_enable_cnt_multiple >= MULTIPLE){
+				if(++a1_detection.Delay_enable_cnt_multiple >= 2){
 					a1_detection.Delay_enable_cnt_multiple = false;
 					a1_detection.Delay_enable = false;
 					a1_detection.Delay_time_out = true;
@@ -215,16 +215,6 @@ __interrupt void Time2_OVR_IRQHandler(void)
 			}
 		}
 
-		if(a1_detection.Current_charge_state == Charge_abnormal){
-			if(++a1_detection.Charge_abnormal_Delay_enable_cnt >= LNDICATOR_LIGHT_CNT){
-				a1_detection.Charge_abnormal_Delay_enable_cnt = false;
-				if(++a1_detection.Charge_abnormal_Delay_enable_cnt_multiple >= MULTIPLE){
-					a1_detection.Charge_abnormal_Delay_enable_cnt_multiple = false;
-					a1_detection.Current_charge_state = Charge_normal;
-				}
-			}
-		}
-#if 0//test
 		if(battery.Battery_full_time_out == true){
 			if(++battery.Battery_Full_cnt >= LNDICATOR_LIGHT_CNT){
 				battery.Battery_Full_cnt = false;
@@ -235,7 +225,6 @@ __interrupt void Time2_OVR_IRQHandler(void)
 				}
 			}			
 		}
-#endif
 		timeIsr();
   }else{//system.System_State == System_Sleep
   }

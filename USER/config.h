@@ -160,9 +160,7 @@ typedef struct{
 	uint8_t Delay_enable;
 	uint8_t Delay_time_out;
 	uint8_t Delay_enable_cnt_multiple;
-	uint8_t Charge_abnormal_Delay_enable_cnt_multiple;
 	uint16_t Delay_enable_cnt;
-	uint16_t Charge_abnormal_Delay_enable_cnt;
 	uint16_t ADC_A1_AD_Voltage;
 }_A1_Detection;
 

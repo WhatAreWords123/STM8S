@@ -138,21 +138,20 @@ static void Charge_For_Discharge_Detection(void)
   * @retval None
   */
 static void Charge_Query(void)
-{
+{//&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B)
 	if(system.Charge_For_Discharge == Charge_State){
 		if((battery.Battery_voltage > (uint16_t)0x1D7) && (battery.Current_Display == Quantity_Electricity_100)
-			&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B)){
+			&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B)){//battery.Battery_State = Battery_Full;
 			if(battery.Delay_Detection_Battery_full_status == false){
 				battery.Battery_full_time_out = true;
-				battery.Delay_Detection_Battery_full_status = true;
+//				battery.Delay_Detection_Battery_full_status = true;
 			}
 			if(battery.Battery_full_locking == true){
-				battery.Battery_State = Battery_Full;
-				battery.Battery_full_locking = true;
+			battery.Battery_State = Battery_Full;
 				battery.Battery_full_time_out = false;
 				battery.Delay_Detection_Battery_full_status = true;
 			}
-		}else{
+		}else{//battery.Battery_State = Battery_Charge;
 			battery.Battery_State = Battery_Charge;
 			battery.Battery_full_locking = false;
 			battery.Battery_full_time_out = false;

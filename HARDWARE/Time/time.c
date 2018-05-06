@@ -218,7 +218,7 @@ __interrupt void Time2_OVR_IRQHandler(void)
 		if(battery.Battery_full_time_out == true){
 			if(++battery.Battery_Full_cnt >= LNDICATOR_LIGHT_CNT){
 				battery.Battery_Full_cnt = false;
-				if(++battery.Battery_Full_cnt_multiple >= 30){
+				if(++battery.Battery_Full_cnt_multiple >= 12){
 					battery.Battery_Full_cnt_multiple = false;
 					battery.Battery_full_locking = true;
 					battery.Battery_full_time_out = false;

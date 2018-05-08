@@ -27,7 +27,7 @@ static void System_Variable_Init(void)
 	battery.Battery_full_time_out = false;
 	battery.Battery_full_locking = false;
 	battery.Delay_Detection_Battery_full_status = false;
-
+	system.Micro_charge_enable_for_disable = false;
 	a1_detection.Current_charge_state = Charge_normal;
 }
 /**
@@ -96,7 +96,12 @@ void ClockConfig_ON(void)
   */
 static void Charge_For_Discharge_Detection(void)
 {
-	if(Ready == false){
+	if((C_DIR == false) && (STAT2 == true)){
+//Disable Micro
+		B_EN = false;
+		system.Micro_charge_enable_for_disable = false;
+		system.Charge_For_Discharge = Charge_State;
+	}else if(Ready == false){
 		CE = false;
 		if(a1_detection.Delay_Detection_status == false){
 			A_DIR = false;
@@ -108,11 +113,13 @@ static void Charge_For_Discharge_Detection(void)
 		if(a1_detection.Delay_time_out == true){
 			if(a1_detection.ADC_A1_AD_Voltage > (uint16_t)0x10){
 				a1_detection.Current_charge_state = Charge_normal;
+				system.Micro_charge_enable_for_disable = true;
 				system.Charge_For_Discharge = Charge_State;
 			}
 			if(a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x08){
 				B_EN = false;
 				a1_detection.Delay_time_out = false;
+				system.Micro_charge_enable_for_disable = false;
 				a1_detection.Current_charge_state = Charge_abnormal;
 			}
 		}
@@ -129,6 +136,7 @@ static void Charge_For_Discharge_Detection(void)
 			a1_detection.Delay_time_out = false;
 			a1_detection.Delay_Detection_status = false;
 			a1_detection.Current_charge_state = Charge_normal;
+			system.Micro_charge_enable_for_disable = false;
 		}
 	}
 }
@@ -138,10 +146,22 @@ static void Charge_For_Discharge_Detection(void)
   * @retval None
   */
 static void Charge_Query(void)
-{//&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B)
+{
 	if(system.Charge_For_Discharge == Charge_State){
-		if((battery.Battery_voltage > (uint16_t)0x1D7) && (battery.Current_Display == Quantity_Electricity_100)
-			&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B)){//battery.Battery_State = Battery_Full;
+		if(C_DIR == false){
+			if(PG == true){
+				if(battery.Delay_Detection_Battery_full_status == false){
+					battery.Battery_full_time_out = true;
+	//				battery.Delay_Detection_Battery_full_status = true;
+				}
+				if(battery.Battery_full_locking == true){
+				battery.Battery_State = Battery_Full;
+					battery.Battery_full_time_out = false;
+					battery.Delay_Detection_Battery_full_status = true;
+				}
+			}
+		}else if((battery.Battery_voltage > (uint16_t)0x1D7) && (battery.Current_Display == Quantity_Electricity_100)
+			&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B) && (system.Micro_charge_enable_for_disable == true)){//battery.Battery_State = Battery_Full;
 			if(battery.Delay_Detection_Battery_full_status == false){
 				battery.Battery_full_time_out = true;
 //				battery.Delay_Detection_Battery_full_status = true;

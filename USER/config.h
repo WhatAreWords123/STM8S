@@ -100,7 +100,7 @@ typedef unsigned long     uint32_t;
 
 
 #define Speed_Voltage																				(uint16_t)0x147
-#define low_speed_Voltage																		(uint16_t)0xF5
+#define low_speed_Voltage																		(uint16_t)0x133
 
 #define Speed_mode																					true
 #define low_speed_mode																			false
@@ -143,6 +143,7 @@ typedef struct{
 //	uint8_t Last_state;
 	uint8_t NotifyLight_EN;
 	uint8_t Charge_For_Discharge;
+	uint8_t Micro_charge_enable_for_disable;
 	uint8_t Flay_Adc_gather;
 	uint8_t Lndicator_light_cnt_multiple;
 	uint16_t Adc_gather_cnt;

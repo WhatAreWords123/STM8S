@@ -23,6 +23,15 @@ void Time2_Init(void)
   * @param  None
   * @retval None
   */
+void Tim2_DeInit(void)
+{
+  TIM2_CR1 &= 0xFE;                                          //失能Tim2计数器
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 static void PWM_indicator(void)
 {
 	if(++ledFun.ledPeriod >= LED_PERIOD_MAX){	//整个周期结束
@@ -225,6 +234,17 @@ __interrupt void Time2_OVR_IRQHandler(void)
 				}
 			}			
 		}
+
+		if(system.System_sleep_countdown == true){
+			if(++system.System_sleep_countdown_cnt >= LNDICATOR_LIGHT_CNT){
+				system.System_sleep_countdown_cnt = false;
+				if(++system.System_sleep_countdown_cnt_multiple >= 15){
+					system.System_sleep_countdown_cnt_multiple = false;
+					system.System_State = System_Sleep;
+				}
+			}			
+		}
+		
 		timeIsr();
   }else{//system.System_State == System_Sleep
   }

@@ -84,6 +84,8 @@ uint16_t Read_ADC(uint8_t ch)
   */
 static void Fast_slow_charge_discharge_judge(void)
 {
+	qc_detection.QC_Gather_finish = true;
+	
 	if(qc_detection.ADC_QC_Voltage > Speed_Voltage){
 		qc_detection.Mode = Speed_mode;
 	}

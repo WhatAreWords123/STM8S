@@ -18,7 +18,6 @@ static void System_Variable_Init(void)
 	system.System_State = System_Run;
 	system.Charge_For_Discharge = Discharge_State;
 	battery.Batter_Low_Pressure = Batter_Normal;
-	battery.Current_Display = 6;
 
 	system.Charge_For_Discharge = Discharge_State;
 	qc_detection.Mode = low_speed_mode;
@@ -29,6 +28,11 @@ static void System_Variable_Init(void)
 	battery.Delay_Detection_Battery_full_status = false;
 	system.Micro_charge_enable_for_disable = false;
 	a1_detection.Current_charge_state = Charge_normal;
+
+	system.System_sleep_countdown = false;
+	system.System_sleep_countdown_cnt = false;
+	system.System_sleep_countdown_cnt_multiple = false;
+	qc_detection.QC_Gather_finish = false;
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -42,6 +46,8 @@ static void SClK_Initial(void)
 	while(!(CLK_ICKR&0x02));      //HSI准备就绪
 	CLK_SWR = 0xe1;               //HSI为主时钟源
 	CLK_CKDIVR = 0x00;            //HSI不分频
+
+	CPU_CCR = 0x28;
 }
 /**
   * @brief  GPIO_Init
@@ -51,20 +57,22 @@ static void SClK_Initial(void)
 void GPIO_Init(void)
 {
   PA_DDR |= 0x06;                    //PA1 PA2输出模式
-	PA_CR1 |= 0x02;                    //推挽输出
-	PA_CR2 |= 0x02;                    //输出速度10Mhz
+	PA_CR1 |= 0x06;                    //推挽输出
+	PA_CR2 |= 0x06;                    //输出速度10Mhz
 
   PC_DDR |= 0xD8;                    //PC3 PC4 PC6 PC7输出模式
 	PC_CR1 |= 0xD8;                    //推挽输出
 	PC_CR2 |= 0xD8;                    //输出速度10Mhz
 
-  PA_DDR |= 0x10;                    //PD4 输出模式
-	PA_CR1 |= 0x10;                    //推挽输出
-	PA_CR2 |= 0x10;                    //输出速度10Mhz
+  PD_DDR |= 0x10;                    //PD4 输出模式
+	PD_CR1 |= 0x10;                    //推挽输出
+	PD_CR2 |= 0x10;                    //输出速度10Mhz
 
-	PA_CR1 |= 0x27;                    //PA3 PA5上拉输入
-
-	PB_CR1 |= 0x10;                    //PB4 上拉输入
+	PA_DDR &= ~0x08;
+	PA_CR1 |= 0x08;                    //PA3 上拉输入
+	PA_CR2 &= ~0x08;
+	
+	PB_CR1 |= 0x30;                    //PB4 PB5上拉输入
 
 	PC_CR1 |= 0x20;                    //PC5 上拉输入
 	
@@ -83,11 +91,28 @@ void GPIO_Init(void)
   * @param  None
   * @retval None
   */
-void ClockConfig_ON(void)
+static void ClockConfig_ON(void)
 {
   CLK_PCKENR1 = 0xFF;
   CLK_PCKENR2 = 0xFF;
 //  UART_CLK_UART_OFF();            //关闭UART外设时钟
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+static void ClockConfig_OFF(void)
+{
+  CLK_PCKENR1 = 0x00;
+  CLK_PCKENR2 = 0x00;
+}
+static void Key_Interrupt_Enable(void)
+{
+	PA_DDR &= ~0x08;
+	PA_CR2 |= 0x08;
+	EXTI_CR1 = 0x02;
+	//Lower edge and low level trigger.
 }
 /**
   * @brief  None
@@ -148,7 +173,7 @@ static void Charge_For_Discharge_Detection(void)
 static void Charge_Query(void)
 {
 	if(system.Charge_For_Discharge == Charge_State){
-		if(C_DIR == false){
+		if(system.Micro_charge_enable_for_disable == false){
 			if(PG == true){
 				if(battery.Delay_Detection_Battery_full_status == false){
 					battery.Battery_full_time_out = true;
@@ -187,6 +212,38 @@ static void Charge_Query(void)
 		battery.Battery_Full_cnt_multiple = false;
 		battery.Delay_Detection_Battery_full_status = false;
 	}
+	
+	if((qc_detection.ADC_QC_Voltage < Overload_event)&&(qc_detection.QC_Gather_finish == true)){
+		if(++system.Overload_cnt >= 200){
+			system.Overload_cnt = false;
+			CE = true;
+			system.System_State = System_Sleep;
+		}
+	}else{
+		system.Overload_cnt = false;
+	}
+	
+	if(a1_detection.ADC_A1_AD_Voltage < Idle_Voltage){
+		system.System_sleep_countdown = true;
+	}else{
+		system.System_sleep_countdown = false;
+		system.System_sleep_countdown_cnt = false;
+		system.System_sleep_countdown_cnt_multiple = false;
+	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+static void System_Initial(void)
+{
+	System_Variable_Init();
+	SClK_Initial();
+	ClockConfig_ON();
+	GPIO_Init();
+	ADC_Init();
+	Time2_Init();	
 }
 /**
   * @brief  None
@@ -195,8 +252,24 @@ static void Charge_Query(void)
   */
 static void Sleep_task(void)
 {
-
+	Red = 1;
+	Grenn = 1;
+	CE = true;
+	B_EN = false;
+	A_DIR = false;
+	ADC_OFF_CMD();
+	Tim2_DeInit();
+	asm("sim");                                     //关闭全局中断
+	Key_Interrupt_Enable();
+	asm("rim");                                     //开全局中断 
+  ClockConfig_OFF();                              //关闭所有外设时钟  
+  asm("halt");                                    //进入停机模式
+  ClockConfig_ON();
+	System_Initial();
+	qc_detection.QC_Gather_finish = false;
+	system.NotifyLight_EN = true;
 }
+
 /**
   * @brief  None
   * @param  None
@@ -204,12 +277,8 @@ static void Sleep_task(void)
   */
 void main(void)
 {
-	System_Variable_Init();
-	SClK_Initial();
-	ClockConfig_ON();
-	GPIO_Init();
-	ADC_Init();
-	Time2_Init();
+	System_Initial();
+	battery.Current_Display = 6;
 	asm("rim");                                 //开全局中断 
 	while(1){
 	if(system.System_State == System_Run){
@@ -222,4 +291,12 @@ void main(void)
 		}
 	}
 }
-
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+#pragma vector=EXTI0_vector//0x05
+__interrupt void Exti0_OVR_IRQHandler(void){
+//Don't do the action
+}

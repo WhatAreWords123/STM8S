@@ -51,7 +51,7 @@ typedef unsigned long     uint32_t;
 #define A_EN2												PD_ODR_ODR4
 	
 #define A_DIR												PA_ODR_ODR2
-#define PG													PA_IDR_IDR5
+#define PG													PB_IDR_IDR5
 #define C_DIR												PB_IDR_IDR4
 #define Ready												PD_IDR_IDR1
 	
@@ -99,8 +99,10 @@ typedef unsigned long     uint32_t;
 #define Quantity_Electricity_5															1
 
 
-#define Speed_Voltage																				(uint16_t)0x147
-#define low_speed_Voltage																		(uint16_t)0x133
+#define Speed_Voltage																				(uint16_t)0x147					//1.6V
+#define low_speed_Voltage																		(uint16_t)0x133					//1.5V
+#define Overload_event																			(uint16_t)0x66					//0.5V
+#define Idle_Voltage																				(uint16_t)0x06					//0.03V
 
 #define Speed_mode																					true
 #define low_speed_mode																			false
@@ -140,8 +142,11 @@ typedef struct{
 
 typedef struct{
 	uint8_t System_State;
-//	uint8_t Last_state;
+	uint8_t System_sleep_countdown;
+	uint8_t Overload_cnt;
 	uint8_t NotifyLight_EN;
+	uint16_t System_sleep_countdown_cnt;
+	uint8_t System_sleep_countdown_cnt_multiple;
 	uint8_t Charge_For_Discharge;
 	uint8_t Micro_charge_enable_for_disable;
 	uint8_t Flay_Adc_gather;
@@ -152,6 +157,7 @@ typedef struct{
 
 typedef struct{
 	uint8_t Mode;
+	uint8_t QC_Gather_finish;
 	uint16_t ADC_QC_Voltage;
 }_Qc_Detection;
 

@@ -235,7 +235,7 @@ static void Charge_Query(void)
 		system.Overload_cnt = false;
 	}
 	
-	if((a1_detection.ADC_A1_AD_Voltage < Idle_Voltage)&&(type_c.ADC_TYPE_C_Voltage <= TYPE_C_VOLTAGE)){
+	if((a1_detection.ADC_A1_AD_Voltage < Idle_Voltage)&&(STAT2 != true)){
 		system.System_sleep_countdown = true;
 	}else{
 		system.System_sleep_countdown = false;
@@ -299,6 +299,8 @@ void main(void)
 {
 	System_Initial();
 	battery.Current_Display = 6;
+	system.Flay_Adc_gather = true;
+	battery.Battery_Level_Update = true;
 	asm("rim");                                 //开全局中断 
 	while(1){
 	if(system.System_State == System_Run){

@@ -2,11 +2,13 @@
 #include "time.h"
 #include "adc.h"
 #include "key.h"
+#include "delay.h"
 
 _KEY key;
 _ledFun ledFun;
 _Battery battery;
 _System system;
+_TYPE_C type_c;
 _Qc_Detection qc_detection;
 _A1_Detection a1_detection;
 
@@ -72,11 +74,14 @@ void GPIO_Init(void)
 
 	PA_DDR &= ~0x08;
 	PA_CR1 |= 0x08;                    //PA3 上拉输入
+#if test
 	PA_CR2 &= ~0x08;
-	
+#endif
 	PB_CR1 |= 0x30;                    //PB4 PB5上拉输入
 
+	PC_DDR &= ~0x20;
 	PC_CR1 |= 0x20;                    //PC5 上拉输入
+	PC_CR2 &= ~0x20;
 	
 	PD_CR1 |= 0x02;                    //PD1 上拉输入
 
@@ -113,8 +118,14 @@ static void Key_Interrupt_Enable(void)
 {
 	PA_DDR &= ~0x08;
 	PA_CR2 |= 0x08;
-	EXTI_CR1 = 0x02;
+	EXTI_CR1 |= 0x02;
 	//Lower edge and low level trigger.
+}
+static void TYPE_C_Interrupt_Enable(void)
+{
+	PC_DDR &= ~0x20;
+	PC_CR2 |= 0x20;
+	EXTI_CR1 |= 0x10;	
 }
 /**
   * @brief  None
@@ -218,14 +229,13 @@ static void Charge_Query(void)
 	if((qc_detection.ADC_QC_Voltage < Overload_event)&&(qc_detection.QC_Gather_finish == true)){
 		if(++system.Overload_cnt >= 200){
 			system.Overload_cnt = false;
-			CE = true;
 			system.System_State = System_Sleep;
 		}
 	}else{
 		system.Overload_cnt = false;
 	}
 	
-	if(a1_detection.ADC_A1_AD_Voltage < Idle_Voltage){
+	if((a1_detection.ADC_A1_AD_Voltage < Idle_Voltage)&&(type_c.ADC_TYPE_C_Voltage <= TYPE_C_VOLTAGE)){
 		system.System_sleep_countdown = true;
 	}else{
 		system.System_sleep_countdown = false;
@@ -264,15 +274,22 @@ static void Sleep_task(void)
 	Tim2_DeInit();
 	asm("sim");                                     //关闭全局中断
 	Key_Interrupt_Enable();
+	TYPE_C_Interrupt_Enable();
 	asm("rim");                                     //开全局中断 
+	sleep:
   ClockConfig_OFF();                              //关闭所有外设时钟  
   asm("halt");                                    //进入停机模式
   ClockConfig_ON();
+	if(TEST1 == false){
+		delay_ms(30);
+		if(TEST1 != false){
+			goto sleep;
+		}
+	}
 	System_Initial();
 	qc_detection.QC_Gather_finish = false;
 	system.NotifyLight_EN = true;
 }
-
 /**
   * @brief  None
   * @param  None
@@ -286,7 +303,9 @@ void main(void)
 	while(1){
 	if(system.System_State == System_Run){
 			Charge_For_Discharge_Detection();
+#if test
 			Key_event();
+#endif
 			Adc_Task();
 			Charge_Query();
 			Battery_Volume();
@@ -300,7 +319,13 @@ void main(void)
   * @param  None
   * @retval None
   */
+#if test
 #pragma vector=EXTI0_vector//0x05
 __interrupt void Exti0_OVR_IRQHandler(void){
+//Don't do the action
+}
+#endif
+#pragma vector=EXTI2_vector//0x07
+__interrupt void Exti2_OVR_IRQHandler(void){
 //Don't do the action
 }

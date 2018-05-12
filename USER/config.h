@@ -78,7 +78,7 @@ typedef unsigned long     uint32_t;
 #define ADC_VB                    													0x06                  //ADC2通道
 #define ADC_QC																							0x03									//ADC3通道
 #define ADC_A1_AD																						0x04									//ADC4通道
-
+#define TYPE_AD																							0x05									//ADC5通道
 #if 0
 #define Battery_Level_0                                     (uint16_t)0x15F          //1.714V
 #define Battery_Level_1																			(uint16_t)0x163          //1.734V
@@ -103,6 +103,7 @@ typedef unsigned long     uint32_t;
 #define low_speed_Voltage																		(uint16_t)0x133					//1.5V
 #define Overload_event																			(uint16_t)0x66					//0.5V
 #define Idle_Voltage																				(uint16_t)0x06					//0.03V
+#define TYPE_C_VOLTAGE																			(uint16_t)0x02					//0.01V
 
 #define Speed_mode																					true
 #define low_speed_mode																			false
@@ -112,6 +113,8 @@ typedef unsigned long     uint32_t;
 
 #define Charge_normal																				false
 #define Charge_abnormal																			true
+
+#define test																								1
 
 typedef struct{
 	uint8_t ledPeriod;
@@ -177,10 +180,15 @@ typedef struct{
 	uint8_t key;
 }_KEY;
 
+typedef struct{
+	uint16_t ADC_TYPE_C_Voltage;
+}_TYPE_C;
+
 extern _KEY key;
 extern _ledFun ledFun;
 extern _Battery battery;
 extern _System system;
+extern _TYPE_C type_c;
 extern _Qc_Detection qc_detection;
 extern _A1_Detection a1_detection;
 #endif

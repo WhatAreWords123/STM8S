@@ -171,6 +171,13 @@ typedef struct{
 	uint16_t ADC_A1_AD_Voltage;
 }_A1_Detection;
 
+typedef struct{
+	uint8_t Key_Time_cnt;
+	uint8_t time_10ms_ok;
+	uint8_t key;
+}_KEY;
+
+extern _KEY key;
 extern _ledFun ledFun;
 extern _Battery battery;
 extern _System system;

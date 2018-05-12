@@ -244,7 +244,10 @@ __interrupt void Time2_OVR_IRQHandler(void)
 				}
 			}			
 		}
-		
+		if(++key.Key_Time_cnt >= 200){
+			key.Key_Time_cnt = false;
+			key.time_10ms_ok = true;
+		}
 		timeIsr();
   }else{//system.System_State == System_Sleep
   }

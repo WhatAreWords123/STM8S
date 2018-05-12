@@ -1,7 +1,9 @@
 #include "main.h"
 #include "time.h"
 #include "adc.h"
+#include "key.h"
 
+_KEY key;
 _ledFun ledFun;
 _Battery battery;
 _System system;
@@ -84,7 +86,7 @@ void GPIO_Init(void)
 	CE = 0;
 	A_DIR = 1;
 	B_EN = 0;
-	
+	A_EN2 = false;
 }
 /**
   * @brief  void ClockConfig(void) => 开启所有外设时钟
@@ -257,6 +259,7 @@ static void Sleep_task(void)
 	CE = true;
 	B_EN = false;
 	A_DIR = false;
+	A_EN2 = false;
 	ADC_OFF_CMD();
 	Tim2_DeInit();
 	asm("sim");                                     //关闭全局中断
@@ -283,6 +286,7 @@ void main(void)
 	while(1){
 	if(system.System_State == System_Run){
 			Charge_For_Discharge_Detection();
+			Key_event();
 			Adc_Task();
 			Charge_Query();
 			Battery_Volume();

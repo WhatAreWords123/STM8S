@@ -148,6 +148,7 @@ void Battery_Volume(void)
 						if(battery.Battery_voltage < Battery_Level_0){
 							if(system.Charge_For_Discharge == Discharge_State)
 								battery.Batter_Low_Pressure = Batter_Low;
+								system.System_State = System_Sleep;
 						}
 					}
 				}

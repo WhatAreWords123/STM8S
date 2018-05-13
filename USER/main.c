@@ -279,7 +279,9 @@ static void Sleep_task(void)
 	ADC_OFF_CMD();
 	Tim2_DeInit();
 	asm("sim");                                     //关闭全局中断
-	Key_Interrupt_Enable();
+	if(battery.Batter_Low_Pressure != Batter_Low){
+		Key_Interrupt_Enable();
+	}
 	TYPE_C_Interrupt_Enable();
 	asm("rim");                                     //开全局中断 
 	sleep:

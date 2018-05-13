@@ -122,8 +122,9 @@ void Adc_Task(void)
   */
 void Battery_Volume(void)
 {
-	if(system.Charge_For_Discharge == Discharge_State)
+	if(system.Charge_For_Discharge == Discharge_State){
 		battery.Battery_Compensate = false;
+	}
 	else{//system.Charge_For_Discharge == Charge_State
 		if(qc_detection.Mode == Speed_mode){
 			battery.Battery_Compensate = (uint16_t)0x14;//Charge Compensate	0.1V
@@ -131,25 +132,20 @@ void Battery_Volume(void)
 			battery.Battery_Compensate = (uint16_t)0x0A;//Charge Compensate	0.05V
 		}
 	}
-	if(battery.Battery_Level_Update == true){
+	if((battery.Battery_Level_Update == true)&&(key.key_switch_protection == false)){
 		if(battery.Battery_voltage >= (Battery_Level_3 + battery.Battery_Compensate))
 			battery.Battery_energy_buf = Quantity_Electricity_100;
-		else
-		{
+		else{
 			if(battery.Battery_voltage >= (Battery_Level_2 + battery.Battery_Compensate))
 				battery.Battery_energy_buf = Quantity_Electricity_70;
-			else
-			{
+			else{
 				if(battery.Battery_voltage >= (Battery_Level_1 + battery.Battery_Compensate))
 					battery.Battery_energy_buf = Quantity_Electricity_40;
-				else
-				{
+				else{
 					if(battery.Battery_voltage >= (Battery_Level_0 + battery.Battery_Compensate))
 						battery.Battery_energy_buf = Quantity_Electricity_5;
-					else
-					{
-						if(battery.Battery_voltage < Battery_Level_0)
-						{
+					else{
+						if(battery.Battery_voltage < Battery_Level_0){
 							if(system.Charge_For_Discharge == Discharge_State)
 								battery.Batter_Low_Pressure = Batter_Low;
 						}
@@ -157,18 +153,14 @@ void Battery_Volume(void)
 				}
 			}
 		}
-		
-		if(system.Charge_For_Discharge == Charge_State)
-		{
+		if(system.Charge_For_Discharge == Charge_State){
 			if(battery.Battery_energy_buf >= battery.Current_Display){
 				battery.Current_Display = battery.Battery_energy_buf;
 				system.NotifyLight_EN = true;
 			}
 		}
-		else//system.Charge_For_Discharge == Discharge_State
-		{
-			if(battery.Battery_energy_buf	< battery.Current_Display)
-			{
+		else{//system.Charge_For_Discharge == Discharge_State
+			if(battery.Battery_energy_buf	< battery.Current_Display){
 				battery.Current_Display = battery.Battery_energy_buf;
 				system.NotifyLight_EN = true;
 			}

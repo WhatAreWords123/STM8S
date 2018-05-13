@@ -1,4 +1,5 @@
 #include "key.h"
+#include "delay.h"
 
 uint8_t key_driver(void) 
 { 
@@ -74,6 +75,11 @@ void Key_event(void)
 		key.key = key_read(); //调用扫描按键程序，返回一个键值
 		if (key.key == L_key){ //长按：点亮P1口上的8个LED灯。（低电平点亮）
 			A_EN2 = !A_EN2;
+			CE = true;
+			delay_ms(10);
+			CE = false;
+			key.Key_Dlay_Enable = true;
+			key.key_switch_protection = true;
 		}else if(key.key == D_key){//双击：点亮P1口上第二个LED灯。（低电平点亮）  
 			LED = !LED;
 		}else if(key.key == S_key){//单击：点亮P1口上第一个LED灯。（低电平点亮）    

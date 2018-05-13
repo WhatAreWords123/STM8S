@@ -141,8 +141,8 @@ static void Charge_indicator_Slow(void)
 		switch(battery.Current_Display){
 			case Quantity_Electricity_100: Grenn = !Grenn; Red = 1; break;
 			case Quantity_Electricity_70:  Grenn = !Grenn; Red = !Red; break;
-			case Quantity_Electricity_10:
 			case Quantity_Electricity_40:
+			case Quantity_Electricity_5:
 				Grenn = 1;
 				Red = !Red;
 				break;
@@ -244,12 +244,21 @@ __interrupt void Time2_OVR_IRQHandler(void)
 				}
 			}			
 		}
-#if test
+
+		if(key.Key_Dlay_Enable == true){
+			if(++key.key_Delay_enable_cnt >= 10000){
+				key.key_Delay_enable_cnt = false;
+				if(++key.key_Delay_enable_cnt_multiple >= 2){
+					key.key_Delay_enable_cnt_multiple = false;
+					key.Key_Dlay_Enable = false;
+					key.key_delay_switch_en = true;
+				}
+			}			
+		}
 		if(++key.Key_Time_cnt >= 200){
 			key.Key_Time_cnt = false;
 			key.time_10ms_ok = true;
 		}
-#endif
 		timeIsr();
   }else{//system.System_State == System_Sleep
   }

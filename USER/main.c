@@ -37,6 +37,12 @@ static void System_Variable_Init(void)
 	system.System_sleep_countdown_cnt = false;
 	system.System_sleep_countdown_cnt_multiple = false;
 	qc_detection.QC_Gather_finish = false;
+	
+	key.key_Delay_enable_cnt = false;
+	key.key_Delay_enable_cnt_multiple = false;
+	key.Key_Dlay_Enable = false;
+	key.key_delay_switch_en = false;
+	key.key_switch_protection = false;
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -51,7 +57,7 @@ static void SClK_Initial(void)
 	CLK_SWR = 0xe1;               //HSI为主时钟源
 	CLK_CKDIVR = 0x00;            //HSI不分频
 
-	CPU_CCR = 0x28;
+//	CPU_CCR = 0x28;
 }
 /**
   * @brief  GPIO_Init
@@ -74,9 +80,8 @@ void GPIO_Init(void)
 
 	PA_DDR &= ~0x08;
 	PA_CR1 |= 0x08;                    //PA3 上拉输入
-#if test
 	PA_CR2 &= ~0x08;
-#endif
+
 	PB_CR1 |= 0x30;                    //PB4 PB5上拉输入
 
 	PC_DDR &= ~0x20;
@@ -134,7 +139,7 @@ static void TYPE_C_Interrupt_Enable(void)
   */
 static void Charge_For_Discharge_Detection(void)
 {
-	if((C_DIR == false) && (STAT2 == true)){
+	if((C_DIR == false) && (STAT2 == true) && (battery.Current_Display != 6)){
 //Disable Micro
 		B_EN = false;
 		system.Micro_charge_enable_for_disable = false;
@@ -226,7 +231,8 @@ static void Charge_Query(void)
 		battery.Delay_Detection_Battery_full_status = false;
 	}
 	
-	if((qc_detection.ADC_QC_Voltage < Overload_event)&&(qc_detection.QC_Gather_finish == true)){
+	if((qc_detection.ADC_QC_Voltage < Overload_event)&&(qc_detection.QC_Gather_finish == true)
+		&&(key.key_switch_protection == false)){
 		if(++system.Overload_cnt >= 200){
 			system.Overload_cnt = false;
 			system.System_State = System_Sleep;
@@ -295,22 +301,36 @@ static void Sleep_task(void)
   * @param  None
   * @retval None
   */
+static void Usb_disable_qc_speed(void)
+{
+	if(key.key_delay_switch_en == true){
+		key.Key_Dlay_Enable = false;
+		key.key_delay_switch_en = false;
+		key.key_switch_protection = false;
+		A_EN2 = !A_EN2;
+	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 void main(void)
 {
 	System_Initial();
 	battery.Current_Display = 6;
 	system.Flay_Adc_gather = true;
+	delay_ms(150);
 	battery.Battery_Level_Update = true;
 	asm("rim");                                 //开全局中断 
 	while(1){
 	if(system.System_State == System_Run){
 			Charge_For_Discharge_Detection();
-#if test
 			Key_event();
-#endif
 			Adc_Task();
 			Charge_Query();
 			Battery_Volume();
+			Usb_disable_qc_speed();
 		}else{//system.System_State == System_Sleep
 			Sleep_task();
 		}
@@ -321,12 +341,15 @@ void main(void)
   * @param  None
   * @retval None
   */
-#if test
 #pragma vector=EXTI0_vector//0x05
 __interrupt void Exti0_OVR_IRQHandler(void){
 //Don't do the action
 }
-#endif
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 #pragma vector=EXTI2_vector//0x07
 __interrupt void Exti2_OVR_IRQHandler(void){
 //Don't do the action

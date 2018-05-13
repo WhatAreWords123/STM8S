@@ -114,8 +114,6 @@ typedef unsigned long     uint32_t;
 #define Charge_normal																				false
 #define Charge_abnormal																			true
 
-#define test																								1
-
 typedef struct{
 	uint8_t ledPeriod;
 	uint8_t ledPlus;
@@ -175,9 +173,14 @@ typedef struct{
 }_A1_Detection;
 
 typedef struct{
+	uint8_t key_switch_protection;
+	uint8_t key_delay_switch_en;
+	uint8_t Key_Dlay_Enable;
 	uint8_t Key_Time_cnt;
 	uint8_t time_10ms_ok;
 	uint8_t key;
+	uint16_t key_Delay_enable_cnt;
+	uint8_t key_Delay_enable_cnt_multiple;
 }_KEY;
 
 typedef struct{

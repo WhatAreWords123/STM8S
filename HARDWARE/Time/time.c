@@ -119,8 +119,8 @@ static void Charge_indicator_quickness(void)
 		switch(battery.Current_Display){
 			case Quantity_Electricity_100: Grenn = !Grenn; Red = 1; break;
 			case Quantity_Electricity_70:  Grenn = !Grenn; Red = !Red; break;
-			case Quantity_Electricity_10:
 			case Quantity_Electricity_40:
+			case Quantity_Electricity_5:
 				Grenn = 1;
 				Red = !Red;
 				break;

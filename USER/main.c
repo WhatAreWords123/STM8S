@@ -192,7 +192,7 @@ static void Charge_Query(void)
 {
 	if(system.Charge_For_Discharge == Charge_State){
 		if(system.Micro_charge_enable_for_disable == false){
-			if(PG == true){
+			if((PG == true) && (battery.Battery_voltage > (uint16_t)0x1D7)){
 				if(battery.Delay_Detection_Battery_full_status == false){
 					battery.Battery_full_time_out = true;
 	//				battery.Delay_Detection_Battery_full_status = true;

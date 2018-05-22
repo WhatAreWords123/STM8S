@@ -49,7 +49,7 @@ typedef unsigned long     uint32_t;
 #define Red													PA_ODR_ODR1
 #define B_EN												PC_ODR_ODR7
 #define A_EN2												PD_ODR_ODR4
-	
+
 #define A_DIR												PA_ODR_ODR2
 #define PG													PB_IDR_IDR5
 #define C_DIR												PB_IDR_IDR4
@@ -143,6 +143,8 @@ typedef struct{
 
 typedef struct{
 	uint8_t System_State;
+	uint8_t Led_last_state;
+	uint8_t Led_current_status;
 	uint8_t System_sleep_countdown;
 	uint8_t Overload_cnt;
 	uint8_t NotifyLight_EN;

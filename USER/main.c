@@ -43,6 +43,8 @@ static void System_Variable_Init(void)
 	key.Key_Dlay_Enable = false;
 	key.key_delay_switch_en = false;
 	key.key_switch_protection = false;
+	system.Led_current_status = false;
+	system.Led_last_state = false;
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -74,7 +76,7 @@ void GPIO_Init(void)
 	PC_CR1 |= 0xD8;                    //推挽输出
 	PC_CR2 |= 0xD8;                    //输出速度10Mhz
 
-  PD_DDR |= 0x10;                    //PD4 输出模式
+  PD_DDR |= 0x10;                    //PD4输出模式
 	PD_CR1 |= 0x10;                    //推挽输出
 	PD_CR2 |= 0x10;                    //输出速度10Mhz
 

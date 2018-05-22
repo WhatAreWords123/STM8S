@@ -127,6 +127,12 @@ static void Charge_indicator_quickness(void)
 			default: break;
 		}		
 	}
+	system.Led_current_status = battery.Current_Display;
+	if(system.Led_last_state != system.Led_current_status){
+		system.Led_last_state = system.Led_current_status;
+		Grenn = 1;
+		Red = 1;
+	}
 }
 /**
   * @brief  None

@@ -73,16 +73,16 @@ void Key_event(void)
 	if(key.time_10ms_ok){  	//time_10ms_ok = 1，表示计时到了10MS。（10MS扫描一次按键）
 		key.time_10ms_ok = 0; //清除计时10MS标志
 		key.key = key_read(); //调用扫描按键程序，返回一个键值
-		if (key.key == L_key){ //长按：点亮P1口上的8个LED灯。（低电平点亮）
-			A_EN2 = !A_EN2;
+		if (key.key == L_key){
+			A_EN2 = true;
 			CE = true;
 			delay_ms(10);
 			CE = false;
 			key.Key_Dlay_Enable = true;
 			key.key_switch_protection = true;
-		}else if(key.key == D_key){//双击：点亮P1口上第二个LED灯。（低电平点亮）  
+		}else if(key.key == D_key){
 			LED = !LED;
-		}else if(key.key == S_key){//单击：点亮P1口上第一个LED灯。（低电平点亮）    
+		}else if(key.key == S_key){ 
 		}		
 	}
 }

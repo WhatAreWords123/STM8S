@@ -74,10 +74,13 @@ void Key_event(void)
 		key.time_10ms_ok = 0; //清除计时10MS标志
 		key.key = key_read(); //调用扫描按键程序，返回一个键值
 		if (key.key == L_key){
+#if 0
 			A_EN2 = true;
 			CE = true;
 			delay_ms(10);
 			CE = false;
+#endif
+			A_EN2 = !A_EN2;
 			key.Key_Dlay_Enable = true;
 			key.key_switch_protection = true;
 		}else if(key.key == D_key){

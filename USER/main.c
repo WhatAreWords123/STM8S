@@ -311,7 +311,7 @@ static void Usb_disable_qc_speed(void)
 		key.Key_Dlay_Enable = false;
 		key.key_delay_switch_en = false;
 		key.key_switch_protection = false;
-		A_EN2 = !A_EN2;
+//		A_EN2 = !A_EN2;
 	}
 }
 /**

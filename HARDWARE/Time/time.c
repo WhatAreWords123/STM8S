@@ -212,7 +212,7 @@ __interrupt void Time2_OVR_IRQHandler(void)
 		if(!battery.Battery_Level_Update){
 			if(++system.Lndicator_light_cnt >= LNDICATOR_LIGHT_CNT){
 				system.Lndicator_light_cnt = false;
-				if(++system.Lndicator_light_cnt_multiple >= MULTIPLE){
+				if(++system.Lndicator_light_cnt_multiple >= 30){
 					system.Lndicator_light_cnt_multiple = false;
 					battery.Battery_Level_Update = true;
 				}

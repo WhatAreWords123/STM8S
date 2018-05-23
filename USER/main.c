@@ -45,6 +45,14 @@ static void System_Variable_Init(void)
 	key.key_switch_protection = false;
 	system.Led_current_status = false;
 	system.Led_last_state = false;
+
+	system.Lndicator_light_cnt_multiple = false;
+	system.Lndicator_light_cnt = false;
+	system.Adc_gather_cnt = false;
+	a1_detection.Delay_enable_cnt = false;
+	a1_detection.Delay_enable = false;
+	battery.Battery_Full_cnt_multiple = false;
+	battery.Battery_Full_cnt = false;
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -89,8 +97,10 @@ void GPIO_Init(void)
 	PC_DDR &= ~0x20;
 	PC_CR1 |= 0x20;                    //PC5 上拉输入
 	PC_CR2 &= ~0x20;
-	
+
+	PD_DDR &= ~0x02;
 	PD_CR1 |= 0x02;                    //PD1 上拉输入
+	PD_CR2 &= ~0x02;
 
 	Red = 1;
 	Grenn = 1;
@@ -133,6 +143,12 @@ static void TYPE_C_Interrupt_Enable(void)
 	PC_DDR &= ~0x20;
 	PC_CR2 |= 0x20;
 	EXTI_CR1 |= 0x10;	
+}
+static void Ready_charge_arouse(void)
+{
+	PD_DDR &= ~0x02;
+	PD_CR2 |= 0x02;
+	EXTI_CR1 |= 0x80;		
 }
 /**
   * @brief  None
@@ -284,6 +300,7 @@ static void Sleep_task(void)
 	if(battery.Batter_Low_Pressure != Batter_Low){
 		Key_Interrupt_Enable();
 	}
+	Ready_charge_arouse();
 	TYPE_C_Interrupt_Enable();
 	asm("rim");                                     //开全局中断 
 	sleep:
@@ -356,5 +373,14 @@ __interrupt void Exti0_OVR_IRQHandler(void){
   */
 #pragma vector=EXTI2_vector//0x07
 __interrupt void Exti2_OVR_IRQHandler(void){
+//Don't do the action
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
+#pragma vector=EXTI3_vector//0x08
+__interrupt void Exti3_OVR_IRQHandler(void){
 //Don't do the action
 }

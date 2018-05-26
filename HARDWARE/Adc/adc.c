@@ -130,7 +130,9 @@ void Adc_Task(void)
 		{
       case 0: battery.Battery_voltage = Read_ADC(ADC_VB); Adc_Query++; break;
 			case 1: qc_detection.ADC_QC_Voltage = Read_ADC(ADC_QC); Fast_slow_charge_discharge_judge(); Adc_Query++; break;
-			case 2: a1_detection.ADC_A1_AD_Voltage = Read_ADC(ADC_A1_AD); Idle_current_detection(); Adc_Query=0; break;
+			case 2: a1_detection.ADC_A1_AD_Voltage = Read_ADC(ADC_A1_AD); 
+//				Idle_current_detection();
+				Adc_Query=0; break;
 			default:break;
     }
 		system.Flay_Adc_gather = false;

@@ -261,16 +261,7 @@ static void Charge_Query(void)
 	}else{
 		system.Overload_cnt = false;
 	}
-#if 0
 	if((a1_detection.ADC_A1_AD_Voltage < Idle_Voltage)&&(STAT2 != true)){
-		system.System_sleep_countdown = true;
-	}else{
-		system.System_sleep_countdown = false;
-		system.System_sleep_countdown_cnt = false;
-		system.System_sleep_countdown_cnt_multiple = false;
-	}
-#endif
-	if((a1_detection.A1_STATE == A1_IDLE_STATE)&&(STAT2 != true)){
 		system.System_sleep_countdown = true;
 	}else{
 		system.System_sleep_countdown = false;

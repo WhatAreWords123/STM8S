@@ -103,6 +103,7 @@ typedef unsigned long     uint32_t;
 #define low_speed_Voltage																		(uint16_t)0x133					//1.5V
 #define Overload_event																			(uint16_t)0x66					//0.5V
 #define Idle_Voltage																				(uint16_t)0x0A					//0.05V
+#define Load_Voltage																				(uint16_t)0x14					//0.1V
 #define TYPE_C_VOLTAGE																			(uint16_t)0x02					//0.01V
 
 #define Speed_mode																					true
@@ -113,6 +114,9 @@ typedef unsigned long     uint32_t;
 
 #define Charge_normal																				false
 #define Charge_abnormal																			true
+
+#define A1_LOAD_STATE																				true
+#define A1_IDLE_STATE																				false
 
 typedef struct{
 	uint8_t ledPeriod;
@@ -165,6 +169,7 @@ typedef struct{
 }_Qc_Detection;
 
 typedef struct{
+	uint8_t A1_STATE;
 	uint8_t Delay_Detection_status;
 	uint8_t Current_charge_state;
 	uint8_t Delay_enable;
@@ -172,6 +177,8 @@ typedef struct{
 	uint8_t Delay_enable_cnt_multiple;
 	uint16_t Delay_enable_cnt;
 	uint16_t ADC_A1_AD_Voltage;
+	uint16_t ADC_A1_AD_Idle_current_cnt;
+	uint16_t ADC_A1_AD_load_current_cnt;
 }_A1_Detection;
 
 typedef struct{

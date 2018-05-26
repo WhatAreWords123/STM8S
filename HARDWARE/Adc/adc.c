@@ -98,6 +98,26 @@ static void Fast_slow_charge_discharge_judge(void)
   * @param  None
   * @retval None
   */
+static void Idle_current_detection(void)
+{
+	if(a1_detection.ADC_A1_AD_Voltage < Idle_Voltage){
+		if(++a1_detection.ADC_A1_AD_Idle_current_cnt >= 3000){
+			a1_detection.A1_STATE = A1_IDLE_STATE;
+		}
+	}else if(a1_detection.ADC_A1_AD_Voltage > Load_Voltage){
+		if(++a1_detection.ADC_A1_AD_load_current_cnt >= 6000){
+			a1_detection.A1_STATE = A1_LOAD_STATE;
+		}
+	}else{
+		a1_detection.ADC_A1_AD_Idle_current_cnt = false;
+		a1_detection.ADC_A1_AD_load_current_cnt = false;
+	}
+}
+/**
+  * @brief  None
+  * @param  None
+  * @retval None
+  */
 void Adc_Task(void)
 {
 	static uint8_t Adc_Query = false;
@@ -108,7 +128,7 @@ void Adc_Task(void)
 		{
       case 0: battery.Battery_voltage = Read_ADC(ADC_VB); Adc_Query++; break;
 			case 1: qc_detection.ADC_QC_Voltage = Read_ADC(ADC_QC); Fast_slow_charge_discharge_judge(); Adc_Query++; break;
-			case 2: a1_detection.ADC_A1_AD_Voltage = Read_ADC(ADC_A1_AD); Adc_Query=0; break;
+			case 2: a1_detection.ADC_A1_AD_Voltage = Read_ADC(ADC_A1_AD); Idle_current_detection(); Adc_Query=0; break;
 			default:break;
     }
 		system.Flay_Adc_gather = false;

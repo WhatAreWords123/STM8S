@@ -53,6 +53,9 @@ static void System_Variable_Init(void)
 	a1_detection.Delay_enable = false;
 	battery.Battery_Full_cnt_multiple = false;
 	battery.Battery_Full_cnt = false;
+	a1_detection.ADC_A1_AD_Idle_current_cnt = false;
+	a1_detection.ADC_A1_AD_load_current_cnt = false;
+	a1_detection.A1_STATE = A1_IDLE_STATE;
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -258,8 +261,16 @@ static void Charge_Query(void)
 	}else{
 		system.Overload_cnt = false;
 	}
-	
+#if 0
 	if((a1_detection.ADC_A1_AD_Voltage < Idle_Voltage)&&(STAT2 != true)){
+		system.System_sleep_countdown = true;
+	}else{
+		system.System_sleep_countdown = false;
+		system.System_sleep_countdown_cnt = false;
+		system.System_sleep_countdown_cnt_multiple = false;
+	}
+#endif
+	if((a1_detection.A1_STATE == A1_IDLE_STATE)&&(STAT2 != true)){
 		system.System_sleep_countdown = true;
 	}else{
 		system.System_sleep_countdown = false;

@@ -102,8 +102,8 @@ typedef unsigned long     uint32_t;
 #define Speed_Voltage																				(uint16_t)0x147					//1.6V
 #define low_speed_Voltage																		(uint16_t)0x133					//1.5V
 #define Overload_event																			(uint16_t)0x66					//0.5V
-#define Idle_Voltage																				(uint16_t)0x0A					//0.05V
-#define Load_Voltage																				(uint16_t)0x14					//0.1V
+#define Idle_Voltage																				(uint16_t)0x08					//0.04V
+#define Load_Voltage																				(uint16_t)0x0C					//0.06V
 #define TYPE_C_VOLTAGE																			(uint16_t)0x02					//0.01V
 
 #define Speed_mode																					true

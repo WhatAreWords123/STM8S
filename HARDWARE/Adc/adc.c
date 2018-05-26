@@ -100,17 +100,19 @@ static void Fast_slow_charge_discharge_judge(void)
   */
 static void Idle_current_detection(void)
 {
-	if(a1_detection.ADC_A1_AD_Voltage < Idle_Voltage){
-		if(++a1_detection.ADC_A1_AD_Idle_current_cnt >= 3000){
-			a1_detection.A1_STATE = A1_IDLE_STATE;
-		}
-	}else if(a1_detection.ADC_A1_AD_Voltage > Load_Voltage){
-		if(++a1_detection.ADC_A1_AD_load_current_cnt >= 6000){
+	if(a1_detection.ADC_A1_AD_Voltage > Load_Voltage){
+		a1_detection.ADC_A1_AD_Idle_current_cnt = false;
+		if(++a1_detection.ADC_A1_AD_load_current_cnt >= 100){
+			a1_detection.ADC_A1_AD_load_current_cnt = false;
 			a1_detection.A1_STATE = A1_LOAD_STATE;
 		}
-	}else{
-		a1_detection.ADC_A1_AD_Idle_current_cnt = false;
+	}
+	if(a1_detection.ADC_A1_AD_Voltage < Idle_Voltage){
 		a1_detection.ADC_A1_AD_load_current_cnt = false;
+		if(++a1_detection.ADC_A1_AD_Idle_current_cnt >= 500){
+			a1_detection.ADC_A1_AD_Idle_current_cnt = false;
+			a1_detection.A1_STATE = A1_IDLE_STATE;
+		}
 	}
 }
 /**

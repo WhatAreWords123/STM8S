@@ -83,13 +83,13 @@ void GPIO_Init(void)
 	PA_CR1 |= 0x06;                    //推挽输出
 	PA_CR2 |= 0x06;                    //输出速度10Mhz
 
-  PC_DDR |= 0xD8;                    //PC3 PC4 PC6 PC7输出模式
-	PC_CR1 |= 0xD8;                    //推挽输出
-	PC_CR2 |= 0xD8;                    //输出速度10Mhz
+  PC_DDR |= 0xC8;                    //PC3 PC6 PC7输出模式
+	PC_CR1 |= 0xC8;                    //推挽输出
+	PC_CR2 |= 0xC8;                    //输出速度10Mhz
 
-  PD_DDR |= 0x10;                    //PD4输出模式
-	PD_CR1 |= 0x10;                    //推挽输出
-	PD_CR2 |= 0x10;                    //输出速度10Mhz
+  PD_DDR |= 0x12;                    //PD4 PD1输出模式
+	PD_CR1 |= 0x12;                    //推挽输出
+	PD_CR2 |= 0x12;                    //输出速度10Mhz
 
 	PA_DDR &= ~0x08;
 	PA_CR1 |= 0x08;                    //PA3 上拉输入
@@ -97,13 +97,10 @@ void GPIO_Init(void)
 
 	PB_CR1 |= 0x30;                    //PB4 PB5上拉输入
 
-	PC_DDR &= ~0x20;
-	PC_CR1 |= 0x20;                    //PC5 上拉输入
-	PC_CR2 &= ~0x20;
+	PC_DDR &= ~0x30;
+	PC_CR1 |= 0x30;                    //PC4 PC5上拉输入
+	PC_CR2 &= ~0x30;
 
-	PD_DDR &= ~0x02;
-	PD_CR1 |= 0x02;                    //PD1 上拉输入
-	PD_CR2 &= ~0x02;
 
 	Red = 1;
 	Grenn = 1;
@@ -112,6 +109,7 @@ void GPIO_Init(void)
 	A_DIR = 1;
 	B_EN = 0;
 	A_EN2 = false;
+	LED = false;
 }
 /**
   * @brief  void ClockConfig(void) => 开启所有外设时钟
@@ -143,14 +141,14 @@ static void Key_Interrupt_Enable(void)
 }
 static void TYPE_C_Interrupt_Enable(void)
 {
-	PC_DDR &= ~0x20;
-	PC_CR2 |= 0x20;
-	EXTI_CR1 |= 0x10;	
+	PC_DDR &= ~0x30;
+	PC_CR2 |= 0x30;
+	EXTI_CR1 |= 0x30;	
 }
 static void Ready_charge_arouse(void)
 {
-	PD_DDR &= ~0x02;
-	PD_CR2 |= 0x02;
+	PC_DDR &= ~0x10;
+	PC_CR2 |= 0x10;
 	EXTI_CR1 |= 0x80;		
 }
 /**
@@ -302,7 +300,7 @@ static void Sleep_task(void)
 	if(battery.Batter_Low_Pressure != Batter_Low){
 		Key_Interrupt_Enable();
 	}
-	Ready_charge_arouse();
+//	Ready_charge_arouse();
 	TYPE_C_Interrupt_Enable();
 	asm("rim");                                     //开全局中断 
 	sleep:

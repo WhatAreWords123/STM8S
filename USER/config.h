@@ -44,16 +44,17 @@ typedef unsigned long     uint32_t;
 #define false					0
 
 #define Grenn												PC_ODR_ODR6
-#define CE													PC_ODR_ODR3
-#define LED													PC_ODR_ODR4
-#define Red													PA_ODR_ODR1
-#define B_EN												PC_ODR_ODR7
+#define CE													PB_ODR_ODR5
+#define LED													PD_ODR_ODR1
+#define Red													PC_ODR_ODR3
+#define Blue												PC_ODR_ODR7
+#define B_EN												PA_ODR_ODR1
 #define A_EN2												PD_ODR_ODR4
 
 #define A_DIR												PA_ODR_ODR2
 #define PG													PB_IDR_IDR5
 #define C_DIR												PB_IDR_IDR4
-#define Ready												PD_IDR_IDR1
+#define Ready												PC_IDR_IDR4
 	
 #define STAT2												PC_IDR_IDR5
 #define TEST1												PA_IDR_IDR3

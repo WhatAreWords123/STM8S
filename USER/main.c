@@ -83,6 +83,10 @@ void GPIO_Init(void)
 	PA_CR1 |= 0x06;                    //推挽输出
 	PA_CR2 |= 0x06;                    //输出速度10Mhz
 
+  PB_DDR |= 0x20;                    //PB5输出模式
+	PB_CR1 |= 0x20;                    //推挽输出
+	PB_CR2 |= 0x20;                    //输出速度10Mhz
+
   PC_DDR |= 0xC8;                    //PC3 PC6 PC7输出模式
 	PC_CR1 |= 0xC8;                    //推挽输出
 	PC_CR2 |= 0xC8;                    //输出速度10Mhz
@@ -95,7 +99,7 @@ void GPIO_Init(void)
 	PA_CR1 |= 0x08;                    //PA3 上拉输入
 	PA_CR2 &= ~0x08;
 
-	PB_CR1 |= 0x30;                    //PB4 PB5上拉输入
+	PB_CR1 |= 0x10;                    //PB4 PB5上拉输入
 
 	PC_DDR &= ~0x30;
 	PC_CR1 |= 0x30;                    //PC4 PC5上拉输入

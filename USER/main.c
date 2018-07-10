@@ -56,6 +56,8 @@ static void System_Variable_Init(void)
 	a1_detection.ADC_A1_AD_Idle_current_cnt = false;
 	a1_detection.ADC_A1_AD_load_current_cnt = false;
 	a1_detection.A1_STATE = A1_IDLE_STATE;
+
+	type_c.ADC_TYPE_C_Voltage = false;
 }
 /**
   * @brief  SClK_Initial() => 初始化系统时钟，系统时钟 = 16MHZ
@@ -108,7 +110,8 @@ void GPIO_Init(void)
 
 	Red = 1;
 	Grenn = 1;
-
+	Blue = 1;
+	
 	CE = 0;
 	A_DIR = 1;
 	B_EN = 0;
@@ -149,12 +152,14 @@ static void TYPE_C_Interrupt_Enable(void)
 	PC_CR2 |= 0x30;
 	EXTI_CR1 |= 0x30;	
 }
+#if 0
 static void Ready_charge_arouse(void)
 {
 	PC_DDR &= ~0x10;
 	PC_CR2 |= 0x10;
 	EXTI_CR1 |= 0x80;		
 }
+#endif
 /**
   * @brief  None
   * @param  None
@@ -215,10 +220,9 @@ static void Charge_Query(void)
 {
 	if(system.Charge_For_Discharge == Charge_State){
 		if(system.Micro_charge_enable_for_disable == false){
-			if((PG == true) && (battery.Battery_voltage > (uint16_t)0x1D7)){
+			if((type_c.ADC_TYPE_C_Voltage <= TYPE_C_SLEEP) && (battery.Battery_voltage > (uint16_t)0x1D7)){
 				if(battery.Delay_Detection_Battery_full_status == false){
 					battery.Battery_full_time_out = true;
-	//				battery.Delay_Detection_Battery_full_status = true;
 				}
 				if(battery.Battery_full_locking == true){
 				battery.Battery_State = Battery_Full;
@@ -230,7 +234,6 @@ static void Charge_Query(void)
 			&& (a1_detection.ADC_A1_AD_Voltage < (uint16_t)0x4B) && (system.Micro_charge_enable_for_disable == true)){//battery.Battery_State = Battery_Full;
 			if(battery.Delay_Detection_Battery_full_status == false){
 				battery.Battery_full_time_out = true;
-//				battery.Delay_Detection_Battery_full_status = true;
 			}
 			if(battery.Battery_full_locking == true){
 			battery.Battery_State = Battery_Full;
@@ -255,7 +258,7 @@ static void Charge_Query(void)
 	}
 	
 	if((qc_detection.ADC_QC_Voltage < Overload_event)&&(qc_detection.QC_Gather_finish == true)
-		&&(key.key_switch_protection == false)){
+		&&(key.key_switch_protection == false)&&(type_c.ADC_TYPE_C_Voltage <= TYPE_C_SLEEP)){
 		if(++system.Overload_cnt >= 200){
 			system.Overload_cnt = false;
 			system.System_State = System_Sleep;

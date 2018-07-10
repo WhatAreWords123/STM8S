@@ -43,10 +43,10 @@ typedef unsigned long     uint32_t;
 #define true					1
 #define false					0
 
-#define Grenn												PC_ODR_ODR6
+#define Grenn												PC_ODR_ODR3
 #define CE													PB_ODR_ODR5
 #define LED													PD_ODR_ODR1
-#define Red													PC_ODR_ODR3
+#define Red													PC_ODR_ODR6
 #define Blue												PC_ODR_ODR7
 #define B_EN												PA_ODR_ODR1
 #define A_EN2												PD_ODR_ODR4
@@ -106,6 +106,8 @@ typedef unsigned long     uint32_t;
 #define Idle_Voltage																				(uint16_t)0x0E					//0.07V
 #define Load_Voltage																				(uint16_t)0x0E					//0.06V
 #define TYPE_C_VOLTAGE																			(uint16_t)0x02					//0.01V
+
+#define TYPE_C_SLEEP																				(uint16_t)0x04					//0.02V
 
 #define Speed_mode																					true
 #define low_speed_mode																			false

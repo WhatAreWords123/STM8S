@@ -61,6 +61,7 @@ typedef unsigned long     uint32_t;
 
 #define ADC_Over                    0x80                  //ADC×ª»»½áÊø
 
+#define DEBUG												0
 
 #define LED_PERIOD_MAX																			250
 #define ADC_GATHER_TIME																			1000								//1000 * 50us = 50ms

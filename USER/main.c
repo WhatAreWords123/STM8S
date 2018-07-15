@@ -93,9 +93,9 @@ void GPIO_Init(void)
 	PC_CR1 |= 0xC8;                    //推挽输出
 	PC_CR2 |= 0xC8;                    //输出速度10Mhz
 
-  PD_DDR |= 0x12;                    //PD4 PD1输出模式
-	PD_CR1 |= 0x12;                    //推挽输出
-	PD_CR2 |= 0x12;                    //输出速度10Mhz
+  PD_DDR |= 0x10;                    //PD4输出模式
+	PD_CR1 |= 0x10;                    //推挽输出
+	PD_CR2 |= 0x10;                    //输出速度10Mhz
 
 	PA_DDR &= ~0x08;
 	PA_CR1 |= 0x08;                    //PA3 上拉输入
@@ -107,6 +107,12 @@ void GPIO_Init(void)
 	PC_CR1 |= 0x30;                    //PC4 PC5上拉输入
 	PC_CR2 &= ~0x30;
 
+#if	DEBUG
+  PD_DDR |= 0x02;                    //PD1输出模式
+	PD_CR1 |= 0x02;                    //推挽输出
+	PD_CR2 |= 0x02;                    //输出速度10Mhz
+	LED = false;
+#endif
 
 	Red = 1;
 	Grenn = 1;
@@ -116,7 +122,7 @@ void GPIO_Init(void)
 	A_DIR = 1;
 	B_EN = 0;
 	A_EN2 = false;
-	LED = false;
+	
 }
 /**
   * @brief  void ClockConfig(void) => 开启所有外设时钟
@@ -255,18 +261,18 @@ static void Charge_Query(void)
 		battery.Battery_State = Battery_Charge;
 		battery.Battery_Full_cnt_multiple = false;
 		battery.Delay_Detection_Battery_full_status = false;
-	}
-	
+	}//&&(type_c.ADC_TYPE_C_Voltage <= TYPE_C_SLEEP)
+
 	if((qc_detection.ADC_QC_Voltage < Overload_event)&&(qc_detection.QC_Gather_finish == true)
-		&&(key.key_switch_protection == false)&&(type_c.ADC_TYPE_C_Voltage <= TYPE_C_SLEEP)){
+		&&(key.key_switch_protection == false)){
 		if(++system.Overload_cnt >= 200){
 			system.Overload_cnt = false;
 			system.System_State = System_Sleep;
 		}
 	}else{
 		system.Overload_cnt = false;
-	}
-	if((a1_detection.ADC_A1_AD_Voltage < Idle_Voltage)&&(STAT2 != true)){
+	}//&&(STAT2 != true)
+	if((a1_detection.ADC_A1_AD_Voltage < Idle_Voltage)&&((type_c.ADC_TYPE_C_Voltage <= TYPE_C_SLEEP)||(STAT2 != true))){
 		system.System_sleep_countdown = true;
 	}else{
 		system.System_sleep_countdown = false;

@@ -84,7 +84,9 @@ void Key_event(void)
 			key.Key_Dlay_Enable = true;
 			key.key_switch_protection = true;
 		}else if(key.key == D_key){
+#if	DEBUG
 			LED = !LED;
+#endif
 		}else if(key.key == S_key){ 
 		}		
 	}
